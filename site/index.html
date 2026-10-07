@@ -16,32 +16,32 @@
    Look follows the GIModel.jl documentation (VitePress default theme with the GIModel brand). */
 @font-face { font-family: "JuliaMono"; src: url("https://cdn.jsdelivr.net/gh/cormullion/juliamono/webfonts/JuliaMono-Regular.woff2") format("woff2"); font-display: swap; }
 :root {
-  --bg: #ffffff;
-  --panel: #f6f6f7;
-  --fg: #3c3c43;
-  --muted: #67676c;
-  --rule: #e2e2e3;
-  --level: #3c3c43;
-  --brand: #3f5ef0;
+  --bg: #fdfcfa;
+  --panel: #f6f4f1;
+  --fg: #33302d;
+  --muted: #6e6862;
+  --rule: #e6e1db;
+  --level: #33302d;
+  --brand: #c8452c;
   --brand-fg: #ffffff;
   --gi-blue: #4d6bfa;
   --gi-orange: #ff8c26;
-  --c-e1: #3f5ef0;
-  --c-m1: #7b8ff5;
-  --c-m2: #aebbfa;
-  --c-gg: #d96a0f;
-  --c-ggg: #f2a65a;
+  --c-e1: #cb3c33;
+  --c-m1: #e3756b;
+  --c-m2: #f0aba4;
+  --c-gg: #d9700f;
+  --c-ggg: #f2ad5e;
   --c-aa: #9558b2;
   --c-ee: #b77ccf;
-  --c-lnu: #d6aee6;
+  --c-lnu: #d6b3e6;
   --c-strong: #389826;
-  --c-zero: #a1a1aa;
-  --warn: #cb3c33;
-  --tab-on: #3f5ef0;
+  --c-zero: #aaa39b;
+  --warn: #b3261e;
+  --tab-on: #c8452c;
   --tab-on-fg: #ffffff;
-  --link: #3f5ef0;
-  --code-bg: #f1f1f3;
-  --bar-bg: rgba(255, 255, 255, 0.85);
+  --link: #b8402a;
+  --code-bg: #f1eee9;
+  --bar-bg: rgba(253, 252, 250, 0.85);
   --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JuliaMono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -186,7 +186,7 @@ footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--ru
     <a class="brand" href="#">Meson Transition Atlas</a>
     <nav aria-label="Links">
       <a href="https://mmikhasenko.github.io/GIModel.jl/dev/">GIModel.jl</a>
-      <a class="opt" href="https://inspirehep.net/literature/3209266">Paper</a>
+      <a class="opt" href="https://doi.org/10.1103/PhysRevD.32.189">1985 paper</a>
       <a class="opt" href="#reproduce">Reproduce</a>
       <a href="https://github.com/mmikhasenko/MesonTransitionAtlas">GitHub</a>
     </nav>
@@ -204,16 +204,9 @@ footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--ru
     <h1><span class="grad">Meson Transition Atlas</span></h1>
     <p class="tagline">Every decay of the Godfrey–Isgur quark model, sector by sector</p>
     <p class="lede">Level diagrams of ten flavor sectors with an arrow for every transition <a href="https://github.com/mmikhasenko/GIModel.jl">GIModel.jl</a> can compute, labelled by its partial width. Masses and widths are model predictions with the paper's parameters; no experimental input. All widths are in MeV.</p>
-    <div class="actions">
-      <a class="btn primary" href="https://mmikhasenko.github.io/GIModel.jl/dev/">GIModel.jl documentation</a>
-      <a class="btn" href="https://inspirehep.net/literature/3209266">Reproduction paper</a>
-      <a class="btn" href="https://doi.org/10.1103/PhysRevD.32.189">Godfrey–Isgur 1985</a>
-      <a class="btn" href="https://github.com/mmikhasenko/MesonTransitionAtlas">View on GitHub</a>
-    </div>
     <ul class="refs">
       <li><span class="k">Model</span>S. Godfrey and N. Isgur, <a href="https://doi.org/10.1103/PhysRevD.32.189">Phys. Rev. D 32, 189 (1985)</a></li>
-      <li><span class="k">Reproduction</span>M. Mikhasenko, <a href="https://inspirehep.net/literature/3209266">A Full Reproduction of the Godfrey–Isgur Relativized Quark Model</a>, <a href="https://arxiv.org/abs/2609.37716">arXiv:2609.37716</a></li>
-      <li><span class="k">Computed with</span><a href="https://github.com/mmikhasenko/GIModel.jl">GIModel.jl</a> <span id="gimodel-version"></span></li>
+      <li><span class="k">Computed with</span><a href="https://github.com/mmikhasenko/GIModel.jl">GIModel.jl</a> <span id="gimodel-version"></span>, a reproduction of the model (<a href="https://inspirehep.net/literature/3209266">arXiv:2609.37716</a>)</li>
     </ul>
   </section>
 
@@ -270,7 +263,7 @@ sh run.sh 3          # about 45 minutes; writes data/transitions.json and site/d
     <p>The page itself needs only <code>site/index.html</code> and <code>site/data.js</code>; open the HTML file directly, no server required.</p>
   </section>
 
-  <footer>If you use the atlas, please cite M. Mikhasenko, <a href="https://inspirehep.net/literature/3209266">A Full Reproduction of the Godfrey–Isgur Relativized Quark Model</a>, <a href="https://arxiv.org/abs/2609.37716">arXiv:2609.37716</a>, and S. Godfrey and N. Isgur, <a href="https://doi.org/10.1103/PhysRevD.32.189">Phys. Rev. D 32, 189 (1985)</a>.</footer>
+  <footer>If you use these numbers, please cite the original work: S. Godfrey and N. Isgur, <a href="https://doi.org/10.1103/PhysRevD.32.189">Phys. Rev. D 32, 189 (1985)</a>. The computation uses the GIModel.jl reproduction (<a href="https://inspirehep.net/literature/3209266">arXiv:2609.37716</a>).</footer>
 </div>
 
 <script src="data.js"></script>
