@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Level diagrams of ten meson sectors in the Godfrey–Isgur relativized quark model, with every decay GIModel.jl can compute and its partial width.">
+<title>Meson Transition Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sector tabs, controls row, one wide level diagram (mass vertical, spectroscopic columns grouped by L) with a detail panel, then notes and the full width table. */
+:root {
+  --bg: #f7f8fa;
+  --panel: #ffffff;
+  --fg: #1b2230;
+  --muted: #5d6677;
+  --rule: #d9dee7;
+  --level: #1b2230;
+  --c-e1: #1f4fa8;
+  --c-m1: #3f86d9;
+  --c-m2: #8fb9ea;
+  --c-gg: #b85a07;
+  --c-ggg: #e59b3a;
+  --c-aa: #7b2f8f;
+  --c-ee: #b25cc4;
+  --c-lnu: #d79be2;
+  --c-strong: #2c8a57;
+  --c-zero: #9aa3b2;
+  --warn: #b3261e;
+  --tab-on: #1b2230;
+  --tab-on-fg: #f7f8fa;
+  --link: #1f4fa8;
+  --code-bg: #eef1f5;
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151c; --panel: #171c25; --fg: #e4e8ef; --muted: #98a2b3; --rule: #2b3340; --level: #e4e8ef;
+    --c-e1: #7aa7f2; --c-m1: #4f8fe0; --c-m2: #2f5f9e;
+    --c-gg: #f0a04b; --c-ggg: #b8742a; --c-aa: #d08ae0; --c-ee: #a964b8; --c-lnu: #7a4687;
+    --c-strong: #5cc48a; --c-zero: #5d6677; --warn: #ff8a80; --tab-on: #e4e8ef; --tab-on-fg: #11151c; --link: #8fb6f5; --code-bg: #1d2330;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151c; --panel: #171c25; --fg: #e4e8ef; --muted: #98a2b3; --rule: #2b3340; --level: #e4e8ef;
+  --c-e1: #7aa7f2; --c-m1: #4f8fe0; --c-m2: #2f5f9e;
+  --c-gg: #f0a04b; --c-ggg: #b8742a; --c-aa: #d08ae0; --c-ee: #a964b8; --c-lnu: #7a4687;
+  --c-strong: #5cc48a; --c-zero: #5d6677; --warn: #ff8a80; --tab-on: #e4e8ef; --tab-on-fg: #11151c; --link: #8fb6f5; --code-bg: #1d2330;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { color-scheme: light; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 48px; display: grid; gap: 18px; }
+h1 { font-family: var(--font-display); font-weight: 600; font-size: 2.1rem; line-height: 1.1; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; margin: 0 0 8px; }
+.lede { color: var(--muted); max-width: 80ch; margin: 6px 0 0; }
+.mono { font-family: var(--font-mono); font-size: 0.86em; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tab { border: 1px solid var(--rule); background: var(--panel); color: var(--fg); font: inherit; padding: 6px 12px; border-radius: 4px; cursor: pointer; display: grid; text-align: left; line-height: 1.2; }
+.tab .q { font-size: 0.78rem; color: var(--muted); }
+.tab[aria-selected="true"] { background: var(--tab-on); color: var(--tab-on-fg); border-color: var(--tab-on); }
+.tab[aria-selected="true"] .q { color: var(--tab-on-fg); opacity: 0.75; }
+.tab:focus-visible, .chip:focus-visible, .seg button:focus-visible, select:focus-visible { outline: 2px solid var(--c-e1); outline-offset: 2px; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 12px 26px; align-items: flex-end; }
+.lgroup { display: grid; gap: 4px; min-width: 0; }
+.gtitle { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 7px; padding: 4px 10px 4px 8px; border: 1px solid var(--rule); border-radius: 999px; background: var(--panel); color: var(--fg); font: inherit; font-size: 0.85rem; cursor: pointer; }
+.chip[aria-pressed="false"] { opacity: 0.45; }
+.chip[disabled] { cursor: default; opacity: 0.35; }
+.sw { display: inline-block; width: 18px; height: 3px; border-radius: 2px; flex: none; }
+.chip .n { color: var(--muted); font-family: var(--font-mono); font-size: 0.78rem; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; }
+.seg button { border: 0; background: var(--panel); color: var(--fg); font: inherit; font-size: 0.85rem; padding: 4px 10px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--rule); }
+.seg button[aria-pressed="true"] { background: var(--tab-on); color: var(--tab-on-fg); }
+select { font: inherit; font-size: 0.85rem; padding: 3px 6px; background: var(--panel); color: var(--fg); border: 1px solid var(--rule); border-radius: 4px; }
+
+.stage { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
+@media (max-width: 1000px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+.figure { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; overflow-x: auto; min-width: 0; }
+.figure svg { display: block; min-width: 1060px; width: 100%; height: auto; }
+.detail { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; min-width: 0; font-size: 0.88rem; }
+.detail h3 { font-family: var(--font-display); font-size: 1.25rem; margin: 0; font-weight: 600; }
+.detail .sub { color: var(--muted); font-family: var(--font-mono); font-size: 0.78rem; margin: 2px 0 10px; overflow-wrap: anywhere; }
+.detail ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 3px; max-height: 520px; overflow-y: auto; }
+.detail li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.detail li .w { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.detail .sum { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--rule); color: var(--muted); }
+.hint { color: var(--muted); font-size: 0.85rem; margin: 0; }
+
+svg text { font-family: var(--font-body); fill: var(--fg); }
+.axis text { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); }
+.axis line { stroke: var(--rule); }
+.colhead { font-size: 13px; font-weight: 600; }
+.colsub { font-size: 10.5px; fill: var(--muted); font-family: var(--font-mono); }
+.blockhead { font-family: var(--font-display); font-size: 17px; font-weight: 600; }
+.lvl line.bar { stroke: var(--level); stroke-width: 3; }
+.lvl.sel line.bar { stroke-width: 5; }
+.lvl .hit { fill: transparent; cursor: pointer; }
+text.name { font-size: 11.5px; font-weight: 500; }
+text.mass { font-family: var(--font-mono); font-size: 9.5px; fill: var(--muted); }
+.tr path { fill: none; stroke-width: 1.5; }
+.tr text, .ex text { font-family: var(--font-mono); font-size: 10px; paint-order: stroke; stroke: var(--panel); stroke-width: 3.5px; stroke-linejoin: round; }
+.tr.zero path { stroke-dasharray: 3 3; }
+.dim { opacity: 0.1; }
+.warnmark { fill: var(--warn) !important; font-weight: 600; }
+
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 22px; }
+.cols > section { min-width: 0; }
+.note p, .note li { max-width: 70ch; }
+.note ul { padding-left: 1.1em; margin: 0; display: grid; gap: 6px; }
+.gaps li { font-size: 0.85rem; }
+.gaps .c { font-family: var(--font-mono); color: var(--muted); }
+
+.tablewrap { overflow-x: auto; max-height: 640px; overflow-y: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: 0.86rem; }
+th, td { text-align: left; padding: 4px 10px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th { position: sticky; top: 0; background: var(--panel); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+td.num { font-family: var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; }
+th.num { text-align: right; }
+td .sw { margin-right: 8px; vertical-align: middle; }
+td.ch { color: var(--muted); font-size: 0.78rem; white-space: normal; min-width: 200px; }
+.prov { color: var(--muted); font-size: 0.8rem; }
+.warn { color: var(--warn); }
+a { color: var(--link); text-underline-offset: 2px; }
+.refs { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 12px 0 0; padding: 0; list-style: none; font-size: 0.9rem; }
+.refs li { min-width: 0; }
+.refs .k { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-right: 6px; }
+pre { background: var(--code-bg); border-radius: 6px; padding: 12px 14px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55; margin: 8px 0; }
+code { font-family: var(--font-mono); font-size: 0.86em; }
+footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--rule); padding-top: 14px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Meson transition atlas</h1>
+    <p class="lede">Every decay that <a href="https://github.com/mmikhasenko/GIModel.jl">GIModel.jl</a> can evaluate, drawn on the model's own spectrum for ten flavor sectors of the Godfrey–Isgur relativized quark model. Masses and widths are model predictions with the paper's parameters; no experimental input. All widths are in MeV.</p>
+    <ul class="refs">
+      <li><span class="k">Model</span>S. Godfrey and N. Isgur, <a href="https://doi.org/10.1103/PhysRevD.32.189">Phys. Rev. D 32, 189 (1985)</a></li>
+      <li><span class="k">Computed with</span><a href="https://github.com/mmikhasenko/GIModel.jl">GIModel.jl</a> <span id="gimodel-version"></span> · <a href="https://mmikhasenko.github.io/GIModel.jl/dev/">documentation</a></li>
+      <li><span class="k">Source and data</span><a href="https://github.com/mmikhasenko/MesonTransitionAtlas">MesonTransitionAtlas</a></li>
+    </ul>
+  </header>
+
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Flavor sector"></nav>
+
+  <div class="controls" id="controls"></div>
+
+  <div class="stage">
+    <div class="figure"><svg id="diagram" viewBox="0 0 1240 840" role="img" aria-label="Level diagram with computed transition widths"></svg></div>
+    <aside class="detail" id="detail" aria-live="polite"></aside>
+  </div>
+  <p class="hint">Hover or tap a level to isolate its transitions and list all of them on the right; tap empty space to reset. Each level shows at most four exits (decays leaving the diagram); the panel and the table list all. † marks a width computed in the S+P basis, without D-wave mixing.</p>
+
+  <div class="cols">
+    <section class="note">
+      <h2>Operators and conventions</h2>
+      <ul>
+        <li><strong>Strong:</strong> elementary emission of π, K, η, η′ (<span class="mono">PseudoscalarEmission</span>). Couplings from the strong-decay tutorial: h/g from the paper's S₀/A fit, g fixed by Γ(ρ → ππ) = 149.1 MeV (<span class="mono" id="couplings"></span>). Charge channels are summed; for two pseudoscalar daughters one rearrangement is kept, with the lighter of π &lt; K &lt; η &lt; η′ as the emitted meson; identical daughters get ½. Decays needing pair creation (³P₀), such as ψ(3770) → DD̄ or ρ → K K̄* with an s s̄ pair, are not in the operator.</li>
+        <li><strong>Radiative</strong> (<span class="mono">PhotonEmission</span>): E1 (S ↔ P), M1 (S ↔ S, direct and hindered), M2 (³P₂ → ¹S₀). Computed for each charge state; switch with the "Charge state" control.</li>
+        <li><strong>Gluonic</strong> (<span class="mono">GluonicAnnihilation</span>, α<sub>s</sub>(M)): only for c c̄ and b b̄; for light quarks the perturbative rate has no meaning.</li>
+        <li><strong>γγ and e⁺e⁻</strong> for neutral hidden-flavor states; <strong>ℓν</strong> for the charged ground-state pseudoscalars with PDG CKM elements.</li>
+      </ul>
+    </section>
+    <section class="note">
+      <h2>Read before quoting</h2>
+      <ul>
+        <li>Computed with GIModel.jl v0.4.2 at commit <a href="https://github.com/mmikhasenko/GIModel.jl/commit/cc7bf22efc7611bb1fddb9fefa759184b1e67d0b"><code>cc7bf22</code></a>, which carries the corrected singlet E1 factor (¹P₁ → ¹S₀ takes 1/3, as ³P<sub>J</sub> → ³S₁).</li>
+        <li>Quarkonium-to-quarkonium hadronic transitions (ψ(2S) → J/ψ η, J/ψ ππ) vanish in the emission operator: a c quark cannot emit an η made of light quarks. They need the QCD multipole expansion, which is not implemented.</li>
+        <li>Zero widths: ³P₁ → ¹S₀ (spin-flip E1) and ³P₂ → ¹S₀ (M2) vanish for equal quark masses, C-forbidden. Shown dashed with the "zero-width" chip.</li>
+        <li>Kinematics use model masses throughout (the model pion is 149 MeV). Widths are not separately convergence-checked; the oscillator solver certifies energies only.</li>
+        <li>Partial widths of a level do not add up to its total width: channels outside the operators above are missing.</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="note gaps">
+    <h2>Not computed in this sector</h2>
+    <p class="hint" style="margin-bottom:8px">Operator calls that were attempted and refused, grouped by message, with the number of state pairs. Level labels in messages are replaced by ·. Related package issues: <a href="https://github.com/mmikhasenko/GIModel.jl/issues/20">#20</a>, <a href="https://github.com/mmikhasenko/GIModel.jl/issues/21">#21</a>, <a href="https://github.com/mmikhasenko/GIModel.jl/issues/22">#22</a>, <a href="https://github.com/mmikhasenko/GIModel.jl/issues/23">#23</a>.</p>
+    <ul id="gaps"></ul>
+  </section>
+
+  <section>
+    <h2 id="tblhead">All computed widths</h2>
+    <div class="tablewrap"><table id="tbl"></table></div>
+    <p class="prov" id="prov"></p>
+  </section>
+
+  <section class="note" id="reproduce">
+    <h2>Reproduce</h2>
+    <p>The repository pins the exact package version in <a href="https://github.com/mmikhasenko/MesonTransitionAtlas/blob/main/Project.toml"><code>Project.toml</code></a> and <a href="https://github.com/mmikhasenko/MesonTransitionAtlas/blob/main/Manifest.toml"><code>Manifest.toml</code></a>. With Julia 1.11:</p>
+<pre>git clone https://github.com/mmikhasenko/MesonTransitionAtlas.git
+cd MesonTransitionAtlas
+sh run.sh 3          # about 45 minutes; writes data/transitions.json and site/data.js</pre>
+    <p>The page itself needs only <code>site/index.html</code> and <code>site/data.js</code>; open the HTML file directly, no server required.</p>
+  </section>
+
+  <footer>Godfrey–Isgur relativized quark model, recomputed with GIModel.jl. Mikhail Mikhasenko.</footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+(() => {
+const DATA = window.TRANSITION_DATA;
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("diagram");
+
+const CLASSES = [
+  { group: "Strong", key: "strong", label: "π, K, η emission", color: "--c-strong" },
+  { group: "Radiative", key: "E1", label: "E1", color: "--c-e1" },
+  { group: "Radiative", key: "M1", label: "M1", color: "--c-m1" },
+  { group: "Radiative", key: "M2", label: "M2", color: "--c-m2" },
+  { group: "To gluons", key: "gg", label: "gg", color: "--c-gg" },
+  { group: "To gluons", key: "ggg", label: "ggg", color: "--c-ggg" },
+  { group: "To photons, leptons", key: "γγ", label: "γγ", color: "--c-aa" },
+  { group: "To photons, leptons", key: "ee", label: "e⁺e⁻", color: "--c-ee" },
+  { group: "To photons, leptons", key: "lnu", label: "ℓν", color: "--c-lnu" },
+  { group: "Display", key: "zero", label: "zero-width", color: "--c-zero", off: true },
+];
+const CLS = Object.fromEntries(CLASSES.map(c => [c.key, c]));
+const visible = Object.fromEntries(CLASSES.map(c => [c.key, !c.off]));
+const sectors = Object.fromEntries(DATA.sectors.map(s => [s.id, s]));
+const state = { sector: DATA.sectors[0].id, real: null, min: 0, focus: null };
+try { const h = location.hash.slice(1); if (sectors[h]) state.sector = h; } catch (e) {}
+
+// ---------- helpers ----------
+const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent && parent.appendChild(e); return e; };
+const fmt = w => {
+  if (w === 0) return "0";
+  if (w >= 0.01) return w >= 100 ? w.toFixed(0) : w >= 10 ? w.toFixed(1) : w.toPrecision(3);
+  if (w >= 0.001) return w.toPrecision(2);
+  const e = Math.floor(Math.log10(w)), m = w / 10 ** e;
+  const sup = String(e).replace("-", "⁻").replace(/\d/g, d => "⁰¹²³⁴⁵⁶⁷⁸⁹"[d]);
+  return m.toFixed(1) + "·10" + sup;
+};
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const nameHTML = s => esc(s).replace(/_\{([^}]*)\}/g, "<sub>$1</sub>");
+function nameSVG(textEl, s) {
+  const parts = s.split(/(_\{[^}]*\})/);
+  let shifted = false;
+  for (const p of parts) {
+    if (!p) continue;
+    const m = p.match(/^_\{(.*)\}$/);
+    const t = el("tspan", {}, textEl);
+    if (m) { t.textContent = m[1]; t.setAttribute("dy", "3"); t.setAttribute("font-size", "0.78em"); shifted = true; }
+    else { t.textContent = p; if (shifted) { t.setAttribute("dy", "-3"); shifted = false; } }
+  }
+}
+const pretty = key => {
+  const m = key.match(/^(\d)\^(\d)([SPD])_(\d)(?::(\w))?$/);
+  return m[1] + { "1": "¹", "3": "³" }[m[2]] + m[3] + "₀₁₂₃"[+m[4]] + (m[5] ? (m[5] === "s" ? " ss̄" : " nn̄") : "");
+};
+const levelOf = (sid, key) => sectors[sid].levels.find(l => l.key === key);
+const lname = (sid, key) => { const l = levelOf(sid, key); return l ? l.name : key; };
+const clsOf = t => t.width === 0 ? "zero" : t.cls;
+const exitLabel = t => {
+  if (t.cls === "strong") return `${lname(t.toSector, t.toKey)} ${t.emitted}`;
+  if (t.toSector) return `${lname(t.toSector, t.toKey)} γ`;
+  return t.emitted;
+};
+const marks = t => (t.flag === "singlet-E1" ? " ⚠" : "") + (t.basis === "SP" ? " †" : "");
+
+// ---------- tabs ----------
+const tabs = document.getElementById("tabs");
+DATA.sectors.forEach(s => {
+  const b = document.createElement("button");
+  b.className = "tab"; b.type = "button"; b.role = "tab"; b.id = "tab-" + s.id;
+  b.innerHTML = `<span>${esc(s.title)}</span><span class="q">${esc(s.quarks)}</span>`;
+  b.addEventListener("click", () => { state.sector = s.id; state.real = null; state.focus = null; try { history.replaceState(null, "", "#" + s.id); } catch (e) {} render(); });
+  tabs.appendChild(b);
+});
+
+// ---------- controls ----------
+const controls = document.getElementById("controls");
+const chipEls = {};
+const groups = {};
+CLASSES.forEach(c => {
+  if (!groups[c.group]) {
+    const g = document.createElement("div"); g.className = "lgroup";
+    g.innerHTML = `<span class="gtitle">${c.group}</span><div class="chips"></div>`;
+    controls.appendChild(g); groups[c.group] = g.querySelector(".chips");
+  }
+  const b = document.createElement("button");
+  b.className = "chip"; b.type = "button"; b.id = "chip-" + c.key.replace(/\W/g, "x");
+  const sw = c.key === "zero"
+    ? `<span class="sw" style="background:repeating-linear-gradient(90deg,var(${c.color}) 0 3px,transparent 3px 6px)"></span>`
+    : `<span class="sw" style="background:var(${c.color})"></span>`;
+  b.innerHTML = `${sw}${c.label}<span class="n"></span>`;
+  b.addEventListener("click", () => { visible[c.key] = !visible[c.key]; render(); });
+  groups[c.group].appendChild(b); chipEls[c.key] = b;
+});
+const realBox = document.createElement("div"); realBox.className = "lgroup";
+realBox.innerHTML = `<span class="gtitle">Charge state</span><div class="seg" id="seg"></div>`;
+controls.appendChild(realBox);
+const minBox = document.createElement("div"); minBox.className = "lgroup";
+minBox.innerHTML = `<label class="gtitle" for="minw">Hide widths below</label>
+  <select id="minw"><option value="0">show all</option><option value="1e-3">1 keV</option><option value="0.1">0.1 MeV</option><option value="1">1 MeV</option><option value="10">10 MeV</option></select>`;
+controls.appendChild(minBox);
+document.getElementById("minw").addEventListener("change", e => { state.min = +e.target.value; render(); });
+
+// ---------- geometry ----------
+const COLS = [
+  { code: "1S0", block: "S wave" }, { code: "3S1", block: "S wave" },
+  { code: "1P1", block: "P wave" }, { code: "3P0", block: "P wave" }, { code: "3P1", block: "P wave" }, { code: "3P2", block: "P wave" },
+  { code: "1D2", block: "D wave" }, { code: "3D1", block: "D wave" }, { code: "3D2", block: "D wave" }, { code: "3D3", block: "D wave" },
+];
+{ let x = 140; COLS.forEach((c, i) => { if (i && c.block !== COLS[i - 1].block) x += 34; c.x = x; x += 108; }); }
+const codeOf = l => `${l.S}${l.L}${l.J}`;
+const jpc = (code, hidden) => {
+  const S = +code[0], L = { S: 0, P: 1, D: 2 }[code[1]], J = +code[2];
+  const P = (L + 1) % 2 ? "⁻" : "⁺", C = (L + S) % 2 ? "⁻" : "⁺";
+  return J + P + (hidden ? C : "");
+};
+
+function render() {
+  const sec = sectors[state.sector];
+  if (state.real === null) state.real = sec.realizations[0].id;
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.id === "tab-" + sec.id)));
+
+  // charge-state segmented control
+  const seg = document.getElementById("seg");
+  seg.innerHTML = "";
+  sec.realizations.forEach(r => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = r.label;
+    b.setAttribute("aria-pressed", String(r.id === state.real));
+    b.addEventListener("click", () => { state.real = r.id; render(); });
+    seg.appendChild(b);
+  });
+  realBox.hidden = sec.realizations.length < 2;
+
+  const inReal = t => t.real == null || t.real === state.real;
+  const all = sec.transitions.filter(inReal);
+  CLASSES.forEach(c => {
+    const n = all.filter(t => clsOf(t) === c.key).length;
+    const b = chipEls[c.key];
+    b.querySelector(".n").textContent = n;
+    b.disabled = n === 0;
+    b.setAttribute("aria-pressed", String(visible[c.key] && n > 0));
+  });
+  const shown = all.filter(t => visible[clsOf(t)] && (t.width === 0 || t.width >= state.min));
+
+  drawDiagram(sec, shown, all);
+  drawTable(sec, shown);
+  drawGaps(sec);
+  showDetail(sec, all, state.focus);
+  document.getElementById("gimodel-version").textContent = `v${DATA.meta.gimodel_version} (${DATA.meta.gimodel_commit})`;
+  document.getElementById("couplings").textContent = `g = ${DATA.meta.g.toFixed(3)}, h = ${DATA.meta.h.toFixed(3)} GeV⁻¹`;
+  document.getElementById("prov").textContent =
+    `Precomputed ${DATA.meta.generated.slice(0, 16).replace("T", " ")} with GIModel.jl ${DATA.meta.gimodel_version} (commit ${DATA.meta.gimodel_commit}). Levels: ${DATA.meta.levels}. ${DATA.meta.solver} Strong pass: waves sampled on a ${DATA.meta.strong_mesh_h} GeV⁻¹ mesh, components below ${DATA.meta.prune} dropped.`;
+}
+
+function drawDiagram(sec, shown, all) {
+  svg.innerHTML = "";
+  const defs = el("defs", {}, svg);
+  CLASSES.forEach(c => {
+    const m = el("marker", { id: "arr-" + c.key.replace(/\W/g, "x"), viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
+    el("path", { d: "M0,1 L10,5 L0,9 z", fill: `var(${c.color})` }, m);
+  });
+  const masses = sec.levels.map(l => l.mass);
+  const lo = Math.min(...masses), hi = Math.max(...masses), pad = (hi - lo) * 0.05 + 0.02;
+  const M0 = lo - pad, M1 = hi + pad * 0.6;
+  const Y0 = 800, Y1 = 112;
+  const y = m => Y0 - (m - M0) / (M1 - M0) * (Y0 - Y1);
+  const span = M1 - M0, step = span > 2 ? 0.2 : span > 0.9 ? 0.1 : 0.05;
+
+  // axis
+  const axis = el("g", { class: "axis" }, svg);
+  for (let m = Math.ceil(M0 / step) * step; m <= M1 + 1e-9; m += step) {
+    const yy = y(m);
+    el("line", { x1: 76, x2: 1230, y1: yy, y2: yy, "stroke-width": 0.6 }, axis);
+    el("text", { x: 68, y: yy + 4, "text-anchor": "end" }, axis).textContent = Math.round(m * 1000);
+  }
+  el("text", { x: 20, y: (Y0 + Y1) / 2, transform: `rotate(-90 20 ${(Y0 + Y1) / 2})`, "text-anchor": "middle" }, axis).textContent = "model mass (MeV)";
+
+  // headers
+  const blocks = {};
+  COLS.forEach(c => (blocks[c.block] ||= []).push(c.x));
+  for (const [name, xs] of Object.entries(blocks)) {
+    const a = Math.min(...xs) - 44, b = Math.max(...xs) + 44;
+    el("text", { x: (a + b) / 2, y: 30, "text-anchor": "middle", class: "blockhead" }, svg).textContent = name;
+    el("line", { x1: a, x2: b, y1: 40, y2: 40, stroke: "var(--rule)", "stroke-width": 1 }, svg);
+  }
+  COLS.forEach(c => {
+    el("text", { x: c.x, y: 60, "text-anchor": "middle", class: "colhead" }, svg).textContent = jpc(c.code, sec.hidden);
+    el("text", { x: c.x, y: 76, "text-anchor": "middle", class: "colsub" }, svg).textContent =
+      { S: "", P: "", D: "" }[c.code[1]] + ({ "1": "¹", "3": "³" }[c.code[0]] + c.code[1] + "₀₁₂₃"[+c.code[2]]);
+  });
+  if (sec.id === "iso") {
+    COLS.forEach(c => {
+      el("text", { x: c.x - 26, y: 92, "text-anchor": "middle", class: "colsub" }, svg).textContent = "nn̄";
+      el("text", { x: c.x + 26, y: 92, "text-anchor": "middle", class: "colsub" }, svg).textContent = "ss̄";
+    });
+  }
+
+  // level positions
+  const twoSlots = sec.id === "iso";
+  const HW = twoSlots ? 20 : 34;
+  const pos = {};
+  sec.levels.forEach(l => {
+    const c = COLS.find(c => c.code === codeOf(l));
+    pos[l.key] = { x: c.x + (twoSlots ? (l.slot ? 26 : -26) : 0), y: y(l.mass) };
+  });
+
+  const gTr = el("g", {}, svg), gEx = el("g", {}, svg), gLvl = el("g", {}, svg), gLab = el("g", {}, svg);
+
+  // internal arrows
+  const internal = shown.filter(t => t.to && pos[t.to]);
+  const ports = {};
+  internal.forEach((t, i) => {
+    (ports[t.from] ||= []).push({ i, other: t.to, end: "s" });
+    (ports[t.to] ||= []).push({ i, other: t.from, end: "d" });
+  });
+  const portX = {};
+  for (const [k, list] of Object.entries(ports)) {
+    list.sort((p, q) => pos[p.other].x - pos[q.other].x || pos[q.other].y - pos[p.other].y);
+    list.forEach((p, j) => { portX[p.i + p.end] = pos[k].x + (list.length === 1 ? 0 : -HW + 5 + j * (2 * HW - 10) / (list.length - 1)); });
+  }
+  internal.forEach((t, i) => {
+    const cls = clsOf(t), color = `var(${CLS[cls].color})`;
+    const sx = portX[i + "s"], sy = pos[t.from].y + 2, dx = portX[i + "d"], dy = pos[t.to].y - 3;
+    const dxv = dx - sx, dyv = dy - sy, bend = Math.abs(dxv) < 20 ? 34 : 0;
+    const c1x = sx + dxv * 0.15 + bend, c1y = sy + dyv * 0.45, c2x = dx - dxv * 0.15 + bend, c2y = dy - dyv * 0.45;
+    const g = el("g", { class: "tr" + (cls === "zero" ? " zero" : ""), "data-a": t.from, "data-b": t.to }, gTr);
+    el("path", { d: `M${sx},${sy} C${c1x},${c1y} ${c2x},${c2y} ${dx},${dy}`, stroke: color, "marker-end": `url(#arr-${cls.replace(/\W/g, "x")})` }, g);
+    const tt = 0.5 + ((i * 7) % 5 - 2) * 0.06, u = 1 - tt;
+    const mx = u*u*u*sx + 3*u*u*tt*c1x + 3*u*tt*tt*c2x + tt*tt*tt*dx;
+    const my = u*u*u*sy + 3*u*u*tt*c1y + 3*u*tt*tt*c2y + tt*tt*tt*dy;
+    const txt = el("text", { x: mx + 4, y: my + 3, fill: color }, g);
+    txt.textContent = (t.cls === "strong" ? t.emitted + " " : "") + fmt(t.width) + (t.basis === "SP" ? "†" : "");
+    if (t.flag === "singlet-E1") el("tspan", { class: "warnmark", dx: 2 }, txt).textContent = "⚠";
+  });
+
+  // exits: decays leaving the diagram, top four per level
+  const exits = {};
+  shown.filter(t => !(t.to && pos[t.to])).forEach(t => (exits[t.from] ||= []).push(t));
+  for (const [k, list] of Object.entries(exits)) {
+    if (!pos[k]) continue;
+    list.sort((a, b) => b.width - a.width);
+    const { x, y: y0 } = pos[k];
+    const top = list.slice(0, 4);
+    top.forEach((t, j) => {
+      const cls = clsOf(t), color = `var(${CLS[cls].color})`;
+      const yy = y0 + 20 + j * 12;
+      const g = el("g", { class: "ex", "data-a": k }, gEx);
+      el("path", { d: `M${x - HW + 3},${y0 + 3} L${x - HW + 3},${yy - 3} L${x - HW + 11},${yy - 3}`, stroke: color, "stroke-width": 1.3, fill: "none", "marker-end": `url(#arr-${cls.replace(/\W/g, "x")})` }, g);
+      const tx = el("text", { x: x - HW + 14, y: yy, fill: color }, g);
+      nameSVG(tx, exitLabel(t) + " " + fmt(t.width) + (t.basis === "SP" ? "†" : ""));
+    });
+    if (list.length > 4) {
+      const g = el("g", { class: "ex", "data-a": k }, gEx);
+      el("text", { x: x - HW + 14, y: y0 + 20 + 4 * 12, fill: "var(--muted)" }, g).textContent = `+${list.length - 4} more`;
+    }
+  }
+
+  // levels
+  sec.levels.forEach(l => {
+    const { x, y: yy } = pos[l.key];
+    const g = el("g", { class: "lvl" + (state.focus === l.key ? " sel" : ""), "data-key": l.key, tabindex: 0, role: "button", "aria-label": l.name.replace(/_\{([^}]*)\}/g, "$1") }, gLvl);
+    el("rect", { class: "hit", x: x - HW - 4, y: yy - 24, width: 2 * HW + 8, height: 30 }, g);
+    el("line", { class: "bar", x1: x - HW, x2: x + HW, y1: yy, y2: yy }, g);
+    const t = el("text", { class: "name", x, y: yy - 14, "text-anchor": "middle" }, gLab);
+    nameSVG(t, l.name);
+    el("text", { class: "mass", x, y: yy - 4, "text-anchor": "middle" }, gLab).textContent = Math.round(l.mass * 1000);
+    const go = () => focus(l.key);
+    g.addEventListener("mouseenter", go);
+    g.addEventListener("focus", go);
+    g.addEventListener("click", e => { e.stopPropagation(); go(); });
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+  });
+  applyFocus();
+}
+svg.addEventListener("click", () => focus(null));
+
+function focus(key) {
+  state.focus = key;
+  applyFocus();
+  const sec = sectors[state.sector];
+  showDetail(sec, sec.transitions.filter(t => t.real == null || t.real === state.real), key);
+}
+function applyFocus() {
+  const k = state.focus;
+  svg.querySelectorAll(".tr").forEach(g => g.classList.toggle("dim", !!k && g.dataset.a !== k && g.dataset.b !== k));
+  svg.querySelectorAll(".ex").forEach(g => g.classList.toggle("dim", !!k && g.dataset.a !== k));
+  svg.querySelectorAll(".lvl").forEach(g => g.classList.toggle("sel", g.dataset.key === k));
+}
+
+function showDetail(sec, all, key) {
+  const box = document.getElementById("detail");
+  if (!key) {
+    const n = all.length, nl = sec.levels.length;
+    box.innerHTML = `<h3>${esc(sec.title)}</h3><div class="sub">${esc(sec.quarks)} · ${nl} levels · ${n} computed widths</div>
+      <p style="margin:0;color:var(--muted)">Select a level to list every decay computed for it, including the exits not drawn.</p>`;
+    return;
+  }
+  const l = levelOf(sec.id, key);
+  const out = all.filter(t => t.from === key).sort((a, b) => b.width - a.width);
+  const into = all.filter(t => t.to === key).sort((a, b) => b.width - a.width);
+  const row = (t, dir) => {
+    const cls = clsOf(t);
+    const what = dir === "out" ? (t.to ? `→ ${nameHTML(lname(sec.id, t.to))}${t.cls === "strong" ? " " + esc(t.emitted) : " γ"}` : `→ ${nameHTML(exitLabel(t))}`)
+      : `← ${nameHTML(lname(sec.id, t.from))}`;
+    return `<li><span class="sw" style="background:var(${CLS[cls].color})"></span><span>${what} <span style="color:var(--muted)">${cls === "zero" ? t.cls : CLS[cls].label}</span>${marks(t)}</span><span class="w">${fmt(t.width)}</span></li>`;
+  };
+  const sum = out.reduce((s, t) => s + t.width, 0);
+  box.innerHTML = `<h3>${nameHTML(l.name)}</h3>
+    <div class="sub">${pretty(l.key)} · ${(l.mass * 1000).toFixed(1)} MeV<br>${esc(l.composition)}</div>
+    ${out.length ? `<div class="gtitle">Decays (MeV)</div><ul>${out.map(t => row(t, "out")).join("")}</ul>
+    <div class="sum">Sum of computed partial widths: <span class="mono">${fmt(sum)}</span> MeV</div>` : `<p style="color:var(--muted)">No decay computed for this level.</p>`}
+    ${into.length ? `<div class="gtitle" style="margin-top:10px">Fed by</div><ul>${into.map(t => row(t, "in")).join("")}</ul>` : ""}`;
+}
+
+function drawTable(sec, shown) {
+  const rank = { strong: 0, E1: 1, M1: 2, M2: 3, zero: 4, gg: 5, ggg: 6, "γγ": 7, ee: 8, lnu: 9 };
+  const rows = [...shown].sort((a, b) => rank[clsOf(a)] - rank[clsOf(b)] || b.width - a.width);
+  document.getElementById("tblhead").textContent = `All computed widths, ${sec.title.toLowerCase()} (${rows.length})`;
+  document.getElementById("tbl").innerHTML =
+    `<thead><tr><th>Class</th><th>Decay</th><th>Levels</th><th class="num">Γ (MeV)</th><th>Charge channels</th></tr></thead><tbody>` +
+    rows.map(t => {
+      const cls = clsOf(t);
+      const fin = t.to ? nameHTML(lname(sec.id, t.to)) + (t.cls === "strong" ? " " + esc(t.emitted) : " γ") : nameHTML(exitLabel(t));
+      const lv = pretty(t.from) + (t.to ? " → " + pretty(t.to) : t.toKey ? " → " + pretty(t.toKey) + " (" + t.toSector + ")" : "");
+      return `<tr><td><span class="sw" style="background:var(${CLS[cls].color})"></span>${cls === "zero" ? t.cls + " (zero)" : CLS[cls].label}</td>
+        <td>${nameHTML(lname(sec.id, t.from))} → ${fin}${t.flag === "singlet-E1" ? ' <span class="warn">⚠</span>' : ""}${t.basis === "SP" ? " †" : ""}</td>
+        <td class="mono">${lv}</td><td class="num">${t.width === 0 ? "0" : t.width.toPrecision(3)}</td>
+        <td class="ch">${t.channels ? esc(t.channels.join("; ")) : t.ckm ? "|V| = " + t.ckm : ""}</td></tr>`;
+    }).join("") + "</tbody>";
+}
+
+function drawGaps(sec) {
+  const ul = document.getElementById("gaps");
+  const z = sec.strong_zeros || { parity: 0, symmetry: 0 };
+  const zeros = (z.parity || z.symmetry)
+    ? `<li><span class="c">${z.parity + z.symmetry}×</span> strong channels that vanish exactly and are not drawn: ${z.parity} forbidden by J and parity (the package throws "reducing over an empty collection", GIModel.jl#23), ${z.symmetry} forbidden by G parity or isospin (rounding noise below 10⁻²⁰ MeV).</li>`
+    : "";
+  ul.innerHTML = zeros + (sec.gaps.length
+    ? sec.gaps.map(g => `<li><span class="c">${g.count}×</span> ${esc(g.message)}</li>`).join("")
+    : "<li>None.</li>");
+}
+
+render();
+})();
+</script>
+</body>
+</html>
