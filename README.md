@@ -9,6 +9,10 @@ by its partial width in MeV.
 
 - **Model:** S. Godfrey and N. Isgur, *Mesons in a relativized quark model with
   chromodynamics*, [Phys. Rev. D 32, 189 (1985)](https://doi.org/10.1103/PhysRevD.32.189).
+- **Reproduction of the model:** M. Mikhasenko, *A Full Reproduction of the
+  Godfrey–Isgur Relativized Quark Model*,
+  [arXiv:2609.37716](https://arxiv.org/abs/2609.37716)
+  ([INSPIRE](https://inspirehep.net/literature/3209266)).
 - **Computation:** [GIModel.jl](https://github.com/mmikhasenko/GIModel.jl)
   v0.4.2 at commit
   [`cc7bf22`](https://github.com/mmikhasenko/GIModel.jl/commit/cc7bf22efc7611bb1fddb9fefa759184b1e67d0b),
@@ -108,3 +112,13 @@ To view the result, open `site/index.html` in a browser. No server is needed.
 GeV, composition), `transitions` (class, `from`, `to` or `toSector`/`toKey`,
 emitted particle, `width` in MeV, charge realization, basis `full` or `SP`,
 charge channels), `gaps` (refused calls by message) and `strong_zeros`.
+
+## Citing
+
+If you use the atlas, please cite the reproduction paper and the original model:
+
+- M. Mikhasenko, *A Full Reproduction of the Godfrey–Isgur Relativized Quark
+  Model*, [arXiv:2609.37716](https://arxiv.org/abs/2609.37716)
+  ([INSPIRE](https://inspirehep.net/literature/3209266)).
+- S. Godfrey and N. Isgur, Phys. Rev. D 32, 189 (1985),
+  [doi:10.1103/PhysRevD.32.189](https://doi.org/10.1103/PhysRevD.32.189).

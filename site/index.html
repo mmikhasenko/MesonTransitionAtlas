@@ -6,62 +6,79 @@
 <meta name="description" content="Level diagrams of ten meson sectors in the Godfrey–Isgur relativized quark model, with every decay GIModel.jl can compute and its partial width.">
 <title>Meson Transition Atlas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<script>
+  // Apply a stored light/dark choice before first paint; otherwise follow the system.
+  try { const t = localStorage.getItem("atlas-theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
 <style>
-/* Layout: sector tabs, controls row, one wide level diagram (mass vertical, spectroscopic columns grouped by L) with a detail panel, then notes and the full width table. */
+/* Layout: sticky top bar, gradient hero with links, sector tabs, controls, one wide level diagram (mass vertical, spectroscopic columns grouped by L) with a detail panel, notes, full table.
+   Look follows the GIModel.jl documentation (VitePress default theme with the GIModel brand). */
+@font-face { font-family: "JuliaMono"; src: url("https://cdn.jsdelivr.net/gh/cormullion/juliamono/webfonts/JuliaMono-Regular.woff2") format("woff2"); font-display: swap; }
 :root {
-  --bg: #f7f8fa;
-  --panel: #ffffff;
-  --fg: #1b2230;
-  --muted: #5d6677;
-  --rule: #d9dee7;
-  --level: #1b2230;
-  --c-e1: #1f4fa8;
-  --c-m1: #3f86d9;
-  --c-m2: #8fb9ea;
-  --c-gg: #b85a07;
-  --c-ggg: #e59b3a;
-  --c-aa: #7b2f8f;
-  --c-ee: #b25cc4;
-  --c-lnu: #d79be2;
-  --c-strong: #2c8a57;
-  --c-zero: #9aa3b2;
-  --warn: #b3261e;
-  --tab-on: #1b2230;
-  --tab-on-fg: #f7f8fa;
-  --link: #1f4fa8;
-  --code-bg: #eef1f5;
-  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
-  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --bg: #ffffff;
+  --panel: #f6f6f7;
+  --fg: #3c3c43;
+  --muted: #67676c;
+  --rule: #e2e2e3;
+  --level: #3c3c43;
+  --brand: #3f5ef0;
+  --brand-fg: #ffffff;
+  --gi-blue: #4d6bfa;
+  --gi-orange: #ff8c26;
+  --c-e1: #3f5ef0;
+  --c-m1: #7b8ff5;
+  --c-m2: #aebbfa;
+  --c-gg: #d96a0f;
+  --c-ggg: #f2a65a;
+  --c-aa: #9558b2;
+  --c-ee: #b77ccf;
+  --c-lnu: #d6aee6;
+  --c-strong: #389826;
+  --c-zero: #a1a1aa;
+  --warn: #cb3c33;
+  --tab-on: #3f5ef0;
+  --tab-on-fg: #ffffff;
+  --link: #3f5ef0;
+  --code-bg: #f1f1f3;
+  --bar-bg: rgba(255, 255, 255, 0.85);
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JuliaMono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #11151c; --panel: #171c25; --fg: #e4e8ef; --muted: #98a2b3; --rule: #2b3340; --level: #e4e8ef;
-    --c-e1: #7aa7f2; --c-m1: #4f8fe0; --c-m2: #2f5f9e;
-    --c-gg: #f0a04b; --c-ggg: #b8742a; --c-aa: #d08ae0; --c-ee: #a964b8; --c-lnu: #7a4687;
-    --c-strong: #5cc48a; --c-zero: #5d6677; --warn: #ff8a80; --tab-on: #e4e8ef; --tab-on-fg: #11151c; --link: #8fb6f5; --code-bg: #1d2330;
+    --bg: #1b1b1f; --panel: #202127; --fg: #dfdfd6; --muted: #98989f; --rule: #2e2e32; --level: #dfdfd6;
+    --brand: #2f4fd6; --brand-fg: #ffffff;
+    --c-e1: #8aa0ff; --c-m1: #5d77f0; --c-m2: #3a4fb0;
+    --c-gg: #ff8c26; --c-ggg: #b8691f; --c-aa: #c58be0; --c-ee: #9a62b3; --c-lnu: #6c4580;
+    --c-strong: #5cc48a; --c-zero: #5d5d66; --warn: #ff7b72; --tab-on: #2f4fd6; --tab-on-fg: #ffffff;
+    --link: #8aa0ff; --code-bg: #161618; --bar-bg: rgba(27, 27, 31, 0.85);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #11151c; --panel: #171c25; --fg: #e4e8ef; --muted: #98a2b3; --rule: #2b3340; --level: #e4e8ef;
-  --c-e1: #7aa7f2; --c-m1: #4f8fe0; --c-m2: #2f5f9e;
-  --c-gg: #f0a04b; --c-ggg: #b8742a; --c-aa: #d08ae0; --c-ee: #a964b8; --c-lnu: #7a4687;
-  --c-strong: #5cc48a; --c-zero: #5d6677; --warn: #ff8a80; --tab-on: #e4e8ef; --tab-on-fg: #11151c; --link: #8fb6f5; --code-bg: #1d2330;
+  --bg: #1b1b1f; --panel: #202127; --fg: #dfdfd6; --muted: #98989f; --rule: #2e2e32; --level: #dfdfd6;
+  --brand: #2f4fd6; --brand-fg: #ffffff;
+  --c-e1: #8aa0ff; --c-m1: #5d77f0; --c-m2: #3a4fb0;
+  --c-gg: #ff8c26; --c-ggg: #b8691f; --c-aa: #c58be0; --c-ee: #9a62b3; --c-lnu: #6c4580;
+  --c-strong: #5cc48a; --c-zero: #5d5d66; --warn: #ff7b72; --tab-on: #2f4fd6; --tab-on-fg: #ffffff;
+  --link: #8aa0ff; --code-bg: #161618; --bar-bg: rgba(27, 27, 31, 0.85);
   color-scheme: dark;
 }
 *, *::before, *::after { box-sizing: border-box; }
 html { color-scheme: light; }
 body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
-.wrap { max-width: 1320px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 48px; display: grid; gap: 18px; }
-h1 { font-family: var(--font-display); font-weight: 600; font-size: 2.1rem; line-height: 1.1; margin: 0; text-wrap: balance; }
-h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; margin: 0 0 8px; }
-.lede { color: var(--muted); max-width: 80ch; margin: 6px 0 0; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-inline: 20px; padding-block: 36px 48px; display: grid; gap: 18px; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 1.08; letter-spacing: -0.025em; margin: 0; text-wrap: balance; }
+h1 .grad { background: linear-gradient(120deg, var(--gi-orange) 0%, var(--gi-blue) 70%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.tagline { font-size: clamp(1.25rem, 2.6vw, 1.7rem); font-weight: 700; letter-spacing: -0.015em; line-height: 1.25; margin: 6px 0 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; letter-spacing: -0.01em; margin: 0 0 8px; }
+.lede { color: var(--muted); max-width: 72ch; margin: 12px 0 0; font-size: 1.05rem; line-height: 1.6; }
 .mono { font-family: var(--font-mono); font-size: 0.86em; }
 
 .tabs { display: flex; flex-wrap: wrap; gap: 6px; }
-.tab { border: 1px solid var(--rule); background: var(--panel); color: var(--fg); font: inherit; padding: 6px 12px; border-radius: 4px; cursor: pointer; display: grid; text-align: left; line-height: 1.2; }
+.tab { border: 1px solid var(--rule); background: var(--panel); color: var(--fg); font: inherit; font-weight: 500; padding: 6px 14px; border-radius: 12px; cursor: pointer; display: grid; text-align: left; line-height: 1.2; }
 .tab .q { font-size: 0.78rem; color: var(--muted); }
 .tab[aria-selected="true"] { background: var(--tab-on); color: var(--tab-on-fg); border-color: var(--tab-on); }
 .tab[aria-selected="true"] .q { color: var(--tab-on-fg); opacity: 0.75; }
@@ -76,18 +93,18 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; marg
 .chip[disabled] { cursor: default; opacity: 0.35; }
 .sw { display: inline-block; width: 18px; height: 3px; border-radius: 2px; flex: none; }
 .chip .n { color: var(--muted); font-family: var(--font-mono); font-size: 0.78rem; }
-.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 20px; overflow: hidden; }
 .seg button { border: 0; background: var(--panel); color: var(--fg); font: inherit; font-size: 0.85rem; padding: 4px 10px; cursor: pointer; }
 .seg button + button { border-left: 1px solid var(--rule); }
 .seg button[aria-pressed="true"] { background: var(--tab-on); color: var(--tab-on-fg); }
-select { font: inherit; font-size: 0.85rem; padding: 3px 6px; background: var(--panel); color: var(--fg); border: 1px solid var(--rule); border-radius: 4px; }
+select { font: inherit; font-size: 0.85rem; padding: 4px 8px; background: var(--panel); color: var(--fg); border: 1px solid var(--rule); border-radius: 8px; }
 
 .stage { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; }
 @media (max-width: 1000px) { .stage { grid-template-columns: minmax(0, 1fr); } }
-.figure { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; overflow-x: auto; min-width: 0; }
+.figure { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; overflow-x: auto; min-width: 0; }
 .figure svg { display: block; min-width: 1060px; width: 100%; height: auto; }
-.detail { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; min-width: 0; font-size: 0.88rem; }
-.detail h3 { font-family: var(--font-display); font-size: 1.25rem; margin: 0; font-weight: 600; }
+.detail { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; min-width: 0; font-size: 0.88rem; }
+.detail h3 { font-family: var(--font-display); font-size: 1.2rem; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
 .detail .sub { color: var(--muted); font-family: var(--font-mono); font-size: 0.78rem; margin: 2px 0 10px; overflow-wrap: anywhere; }
 .detail ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 3px; max-height: 520px; overflow-y: auto; }
 .detail li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
@@ -100,7 +117,7 @@ svg text { font-family: var(--font-body); fill: var(--fg); }
 .axis line { stroke: var(--rule); }
 .colhead { font-size: 13px; font-weight: 600; }
 .colsub { font-size: 10.5px; fill: var(--muted); font-family: var(--font-mono); }
-.blockhead { font-family: var(--font-display); font-size: 17px; font-weight: 600; }
+.blockhead { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
 .lvl line.bar { stroke: var(--level); stroke-width: 3; }
 .lvl.sel line.bar { stroke-width: 5; }
 .lvl .hit { fill: transparent; cursor: pointer; }
@@ -119,7 +136,7 @@ text.mass { font-family: var(--font-mono); font-size: 9.5px; fill: var(--muted);
 .gaps li { font-size: 0.85rem; }
 .gaps .c { font-family: var(--font-mono); color: var(--muted); }
 
-.tablewrap { overflow-x: auto; max-height: 640px; overflow-y: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); }
+.tablewrap { overflow-x: auto; max-height: 640px; overflow-y: auto; border: 1px solid var(--rule); border-radius: 12px; background: var(--panel); }
 table { border-collapse: collapse; width: 100%; font-size: 0.86rem; }
 th, td { text-align: left; padding: 4px 10px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
 th { position: sticky; top: 0; background: var(--panel); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
@@ -129,27 +146,76 @@ td .sw { margin-right: 8px; vertical-align: middle; }
 td.ch { color: var(--muted); font-size: 0.78rem; white-space: normal; min-width: 200px; }
 .prov { color: var(--muted); font-size: 0.8rem; }
 .warn { color: var(--warn); }
-a { color: var(--link); text-underline-offset: 2px; }
+a { color: var(--link); text-decoration: none; font-weight: 500; }
+a:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+/* top bar, as the VitePress navigation */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bar-bg); backdrop-filter: saturate(150%) blur(10px); -webkit-backdrop-filter: saturate(150%) blur(10px); border-bottom: 1px solid var(--rule); }
+.topbar .in { max-width: 1320px; margin: 0 auto; padding: 0 20px; height: 56px; display: flex; align-items: center; gap: 22px; }
+.topbar .brand { font-weight: 700; color: var(--fg); font-size: 1rem; letter-spacing: -0.01em; white-space: nowrap; }
+.topbar nav { display: flex; gap: 20px; margin-left: auto; align-items: center; min-width: 0; overflow-x: auto; }
+.topbar nav a { color: var(--fg); font-size: 0.9rem; white-space: nowrap; }
+.topbar nav a:hover { color: var(--link); text-decoration: none; }
+@media (max-width: 720px) { .topbar nav a.opt { display: none; } }
+.switch { position: relative; flex: none; width: 40px; height: 22px; border-radius: 11px; border: 1px solid var(--rule); background: var(--panel); cursor: pointer; padding: 0; }
+.switch .knob { position: absolute; top: 1px; left: 1px; width: 18px; height: 18px; border-radius: 50%; background: var(--bg); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15); display: grid; place-items: center; transition: transform 0.25s; }
+.switch[aria-checked="true"] .knob { transform: translateX(18px); }
+.switch svg { width: 12px; height: 12px; fill: var(--muted); }
+.switch .moon, .switch[aria-checked="true"] .sun { display: none; }
+.switch[aria-checked="true"] .moon { display: block; }
+.switch:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .switch .knob { transition: none; } }
+
+/* hero actions, as the VitePress buttons */
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.btn { display: inline-block; border-radius: 20px; padding: 0 18px; line-height: 38px; font-size: 0.9rem; font-weight: 600; border: 1px solid var(--rule); background: var(--panel); color: var(--fg); white-space: nowrap; }
+.btn:hover { text-decoration: none; border-color: var(--link); }
+.btn.primary { background: var(--brand); border-color: var(--brand); color: var(--brand-fg); }
+.btn.primary:hover { filter: brightness(1.1); }
 .refs { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 12px 0 0; padding: 0; list-style: none; font-size: 0.9rem; }
 .refs li { min-width: 0; }
 .refs .k { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-right: 6px; }
-pre { background: var(--code-bg); border-radius: 6px; padding: 12px 14px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55; margin: 8px 0; }
+pre { background: var(--code-bg); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55; margin: 8px 0; }
 code { font-family: var(--font-mono); font-size: 0.86em; }
 footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--rule); padding-top: 14px; }
 </style>
 </head>
 <body>
+<header class="topbar">
+  <div class="in">
+    <a class="brand" href="#">Meson Transition Atlas</a>
+    <nav aria-label="Links">
+      <a href="https://mmikhasenko.github.io/GIModel.jl/dev/">GIModel.jl</a>
+      <a class="opt" href="https://inspirehep.net/literature/3209266">Paper</a>
+      <a class="opt" href="#reproduce">Reproduce</a>
+      <a href="https://github.com/mmikhasenko/MesonTransitionAtlas">GitHub</a>
+    </nav>
+    <button class="switch" id="theme" type="button" role="switch" aria-checked="false" aria-label="Dark mode">
+      <span class="knob">
+        <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="stroke: var(--muted)"/></svg>
+        <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1z"/></svg>
+      </span>
+    </button>
+  </div>
+</header>
 
 <div class="wrap">
-  <header>
-    <h1>Meson transition atlas</h1>
-    <p class="lede">Every decay that <a href="https://github.com/mmikhasenko/GIModel.jl">GIModel.jl</a> can evaluate, drawn on the model's own spectrum for ten flavor sectors of the Godfrey–Isgur relativized quark model. Masses and widths are model predictions with the paper's parameters; no experimental input. All widths are in MeV.</p>
+  <section class="hero">
+    <h1><span class="grad">Meson Transition Atlas</span></h1>
+    <p class="tagline">Every decay of the Godfrey–Isgur quark model, sector by sector</p>
+    <p class="lede">Level diagrams of ten flavor sectors with an arrow for every transition <a href="https://github.com/mmikhasenko/GIModel.jl">GIModel.jl</a> can compute, labelled by its partial width. Masses and widths are model predictions with the paper's parameters; no experimental input. All widths are in MeV.</p>
+    <div class="actions">
+      <a class="btn primary" href="https://mmikhasenko.github.io/GIModel.jl/dev/">GIModel.jl documentation</a>
+      <a class="btn" href="https://inspirehep.net/literature/3209266">Reproduction paper</a>
+      <a class="btn" href="https://doi.org/10.1103/PhysRevD.32.189">Godfrey–Isgur 1985</a>
+      <a class="btn" href="https://github.com/mmikhasenko/MesonTransitionAtlas">View on GitHub</a>
+    </div>
     <ul class="refs">
       <li><span class="k">Model</span>S. Godfrey and N. Isgur, <a href="https://doi.org/10.1103/PhysRevD.32.189">Phys. Rev. D 32, 189 (1985)</a></li>
-      <li><span class="k">Computed with</span><a href="https://github.com/mmikhasenko/GIModel.jl">GIModel.jl</a> <span id="gimodel-version"></span> · <a href="https://mmikhasenko.github.io/GIModel.jl/dev/">documentation</a></li>
-      <li><span class="k">Source and data</span><a href="https://github.com/mmikhasenko/MesonTransitionAtlas">MesonTransitionAtlas</a></li>
+      <li><span class="k">Reproduction</span>M. Mikhasenko, <a href="https://inspirehep.net/literature/3209266">A Full Reproduction of the Godfrey–Isgur Relativized Quark Model</a>, <a href="https://arxiv.org/abs/2609.37716">arXiv:2609.37716</a></li>
+      <li><span class="k">Computed with</span><a href="https://github.com/mmikhasenko/GIModel.jl">GIModel.jl</a> <span id="gimodel-version"></span></li>
     </ul>
-  </header>
+  </section>
 
   <nav class="tabs" id="tabs" role="tablist" aria-label="Flavor sector"></nav>
 
@@ -204,13 +270,27 @@ sh run.sh 3          # about 45 minutes; writes data/transitions.json and site/d
     <p>The page itself needs only <code>site/index.html</code> and <code>site/data.js</code>; open the HTML file directly, no server required.</p>
   </section>
 
-  <footer>Godfrey–Isgur relativized quark model, recomputed with GIModel.jl. Mikhail Mikhasenko.</footer>
+  <footer>If you use the atlas, please cite M. Mikhasenko, <a href="https://inspirehep.net/literature/3209266">A Full Reproduction of the Godfrey–Isgur Relativized Quark Model</a>, <a href="https://arxiv.org/abs/2609.37716">arXiv:2609.37716</a>, and S. Godfrey and N. Isgur, <a href="https://doi.org/10.1103/PhysRevD.32.189">Phys. Rev. D 32, 189 (1985)</a>.</footer>
 </div>
 
 <script src="data.js"></script>
 <script>
 (() => {
 const DATA = window.TRANSITION_DATA;
+
+// light/dark switch: the stored choice wins, otherwise the system setting
+const themeBtn = document.getElementById("theme");
+const media = window.matchMedia("(prefers-color-scheme: dark)");
+const isDark = () => (document.documentElement.dataset.theme || (media.matches ? "dark" : "light")) === "dark";
+const syncSwitch = () => themeBtn.setAttribute("aria-checked", String(isDark()));
+themeBtn.addEventListener("click", () => {
+  const next = isDark() ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem("atlas-theme", next); } catch (e) {}
+  syncSwitch();
+});
+media.addEventListener("change", syncSwitch);
+syncSwitch();
 const NS = "http://www.w3.org/2000/svg";
 const svg = document.getElementById("diagram");
 
