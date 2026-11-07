@@ -2,7 +2,7 @@
 
 julia_version = "1.11.5"
 manifest_format = "2.0"
-project_hash = "f4baaa9772172e37b6f2d85a40202d71d4ea8e66"
+project_hash = "dbb7149afe85644e0b7bb8529d9316ea09f19820"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -31,11 +31,11 @@ version = "0.9.5"
 
 [[deps.GIModel]]
 deps = ["KrylovKit", "LinearAlgebra", "PartialWaveFunctions", "Printf", "QuadGK", "SpecialFunctions", "TOML"]
-git-tree-sha1 = "6130a506e793eae3d11b9eecc6ce2f5a2881b954"
-repo-rev = "cc7bf22efc7611bb1fddb9fefa759184b1e67d0b"
+git-tree-sha1 = "980defcfd4203304eef5c748a66888337ac5104f"
+repo-rev = "fda4ab96c2af82fc5d321ae8ee729abdc8244daa"
 repo-url = "https://github.com/mmikhasenko/GIModel.jl"
 uuid = "7b2df1f2-6404-4fb8-a3f7-191b7dc823e0"
-version = "0.4.2"
+version = "0.5.0"
 
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "b2d91fe939cae05960e760110b328288867b5758"
