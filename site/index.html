@@ -39,7 +39,6 @@
   --c-lnu: #d6b3e6;
   --c-strong: #389826;
   --c-zero: #aaa39b;
-  --warn: #b3261e;
   --tab-on: #c8452c;
   --tab-on-fg: #ffffff;
   --link: #b8402a;
@@ -55,7 +54,7 @@
     --brand: #2f4fd6; --brand-fg: #ffffff;
     --c-e1: #8aa0ff; --c-e2: #5d77f0; --c-e3: #3a4fb0; --c-m1: #ff8f86; --c-m2: #d4615a; --c-m3: #9c4440;
     --c-gg: #ff8c26; --c-ggg: #b8691f; --c-aa: #c58be0; --c-ee: #9a62b3; --c-lnu: #6c4580;
-    --c-strong: #5cc48a; --c-zero: #5d5d66; --warn: #ff7b72; --tab-on: #2f4fd6; --tab-on-fg: #ffffff;
+    --c-strong: #5cc48a; --c-zero: #5d5d66; --tab-on: #2f4fd6; --tab-on-fg: #ffffff;
     --link: #8aa0ff; --code-bg: #161618; --bar-bg: rgba(27, 27, 31, 0.85);
     color-scheme: dark;
   }
@@ -65,7 +64,7 @@
   --brand: #2f4fd6; --brand-fg: #ffffff;
   --c-e1: #8aa0ff; --c-e2: #5d77f0; --c-e3: #3a4fb0; --c-m1: #ff8f86; --c-m2: #d4615a; --c-m3: #9c4440;
   --c-gg: #ff8c26; --c-ggg: #b8691f; --c-aa: #c58be0; --c-ee: #9a62b3; --c-lnu: #6c4580;
-  --c-strong: #5cc48a; --c-zero: #5d5d66; --warn: #ff7b72; --tab-on: #2f4fd6; --tab-on-fg: #ffffff;
+  --c-strong: #5cc48a; --c-zero: #5d5d66; --tab-on: #2f4fd6; --tab-on-fg: #ffffff;
   --link: #8aa0ff; --code-bg: #161618; --bar-bg: rgba(27, 27, 31, 0.85);
   color-scheme: dark;
 }
@@ -131,7 +130,6 @@ text.mass { font-family: var(--font-mono); font-size: 9.5px; fill: var(--muted);
 .tr text, .ex text { font-family: var(--font-mono); font-size: 10px; paint-order: stroke; stroke: var(--panel); stroke-width: 3.5px; stroke-linejoin: round; }
 .tr.zero path { stroke-dasharray: 3 3; }
 .dim { opacity: 0.1; }
-.warnmark { fill: var(--warn) !important; font-weight: 600; }
 
 .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 22px; }
 .cols > section { min-width: 0; }
@@ -149,7 +147,6 @@ th.num { text-align: right; }
 td .sw { margin-right: 8px; vertical-align: middle; }
 td.ch { color: var(--muted); font-size: 0.78rem; white-space: normal; min-width: 200px; }
 .prov { color: var(--muted); font-size: 0.8rem; }
-.warn { color: var(--warn); }
 a { color: var(--link); text-decoration: none; font-weight: 500; }
 a:hover { text-decoration: underline; text-underline-offset: 2px; }
 
@@ -349,7 +346,7 @@ const exitLabel = t => {
 const RANK = Object.fromEntries(CLASSES.map((c, i) => [c.key, i]));
 const fmtA = a => (a < 0 ? "−" : "") + (Math.abs(a) >= 0.001 ? Math.abs(a).toFixed(3) : fmt(Math.abs(a)));
 const multipoles = t => t.multipoles && t.multipoles.length ? t.multipoles.map(m => `${m.m} ${fmtA(m.a)}`).join(" · ") : "";
-const marks = t => (t.flag === "singlet-E1" ? " ⚠" : "") + (t.basis === "SP" ? " †" : "");
+const marks = t => (t.basis === "SP" ? " †" : "");
 
 // ---------- tabs ----------
 const tabs = document.getElementById("tabs");
@@ -518,7 +515,6 @@ function drawDiagram(sec, shown, all) {
     const my = u*u*u*sy + 3*u*u*tt*c1y + 3*u*tt*tt*c2y + tt*tt*tt*dy;
     const txt = el("text", { x: mx + 4, y: my + 3, fill: color }, g);
     txt.textContent = (t.cls === "strong" ? t.emitted + " " : "") + fmt(t.width) + (t.basis === "SP" ? "†" : "");
-    if (t.flag === "singlet-E1") el("tspan", { class: "warnmark", dx: 2 }, txt).textContent = "⚠";
   });
 
   // exits: decays leaving the diagram, top four per level
@@ -610,7 +606,7 @@ function drawTable(sec, shown) {
       const fin = t.to ? nameHTML(lname(sec.id, t.to)) + (t.cls === "strong" ? " " + esc(t.emitted) : " γ") : nameHTML(exitLabel(t));
       const lv = pretty(t.from) + (t.to ? " → " + pretty(t.to) : t.toKey ? " → " + pretty(t.toKey) + " (" + t.toSector + ")" : "");
       return `<tr><td><span class="sw" style="background:var(${CLS[cls].color})"></span>${cls === "zero" ? t.cls + " (zero)" : CLS[cls].label}</td>
-        <td>${nameHTML(lname(sec.id, t.from))} → ${fin}${t.flag === "singlet-E1" ? ' <span class="warn">⚠</span>' : ""}${t.basis === "SP" ? " †" : ""}</td>
+        <td>${nameHTML(lname(sec.id, t.from))} → ${fin}${t.basis === "SP" ? " †" : ""}</td>
         <td class="mono">${lv}</td><td class="num">${t.width === 0 ? "0" : t.width.toPrecision(3)}</td>
         <td class="ch">${t.channels ? esc(t.channels.join("; ")) : t.ckm ? "|V| = " + t.ckm : multipoles(t)}</td></tr>`;
     }).join("") + "</tbody>";

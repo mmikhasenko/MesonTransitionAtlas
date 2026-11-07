@@ -44,7 +44,8 @@ tensors).
 Every pair of states is tried with every operator. A refused call is kept,
 grouped by message, and listed on the site under "Not computed in this sector".
 The site explains the conventions: strong couplings, charge-channel sums, the
-S+P fallback for D-wave admixtures, and exact zeros.
+multipole amplitudes, the S+P fallback for gluonic widths of D-wave
+admixtures, and exact zeros.
 
 ## Repository layout
 
@@ -80,7 +81,7 @@ Intermediate results are cached in `cache/` (not tracked):
 | `cache/strong/` | one file per decaying parent | a change to strong decays |
 
 With both caches present, `julia --project=. compute.jl` redoes only the
-radiative and annihilation widths and the assembly, in about 4 minutes. The
+radiative and annihilation widths and the assembly, in about 3 minutes. The
 caches do not record the package version, so delete them yourself after
 updating GIModel.jl.
 
