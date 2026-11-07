@@ -27,8 +27,11 @@
   --gi-blue: #4d6bfa;
   --gi-orange: #ff8c26;
   --c-e1: #cb3c33;
-  --c-m1: #e3756b;
-  --c-m2: #f0aba4;
+  --c-e2: #e3756b;
+  --c-e3: #f0aba4;
+  --c-m1: #1f6fb5;
+  --c-m2: #5b9bd5;
+  --c-m3: #a3c6ea;
   --c-gg: #d9700f;
   --c-ggg: #f2ad5e;
   --c-aa: #9558b2;
@@ -36,7 +39,6 @@
   --c-lnu: #d6b3e6;
   --c-strong: #389826;
   --c-zero: #aaa39b;
-  --warn: #b3261e;
   --tab-on: #c8452c;
   --tab-on-fg: #ffffff;
   --link: #b8402a;
@@ -50,9 +52,9 @@
   :root:not([data-theme="light"]) {
     --bg: #1b1b1f; --panel: #202127; --fg: #dfdfd6; --muted: #98989f; --rule: #2e2e32; --level: #dfdfd6;
     --brand: #2f4fd6; --brand-fg: #ffffff;
-    --c-e1: #8aa0ff; --c-m1: #5d77f0; --c-m2: #3a4fb0;
+    --c-e1: #8aa0ff; --c-e2: #5d77f0; --c-e3: #3a4fb0; --c-m1: #ff8f86; --c-m2: #d4615a; --c-m3: #9c4440;
     --c-gg: #ff8c26; --c-ggg: #b8691f; --c-aa: #c58be0; --c-ee: #9a62b3; --c-lnu: #6c4580;
-    --c-strong: #5cc48a; --c-zero: #5d5d66; --warn: #ff7b72; --tab-on: #2f4fd6; --tab-on-fg: #ffffff;
+    --c-strong: #5cc48a; --c-zero: #5d5d66; --tab-on: #2f4fd6; --tab-on-fg: #ffffff;
     --link: #8aa0ff; --code-bg: #161618; --bar-bg: rgba(27, 27, 31, 0.85);
     color-scheme: dark;
   }
@@ -60,9 +62,9 @@
 :root[data-theme="dark"] {
   --bg: #1b1b1f; --panel: #202127; --fg: #dfdfd6; --muted: #98989f; --rule: #2e2e32; --level: #dfdfd6;
   --brand: #2f4fd6; --brand-fg: #ffffff;
-  --c-e1: #8aa0ff; --c-m1: #5d77f0; --c-m2: #3a4fb0;
+  --c-e1: #8aa0ff; --c-e2: #5d77f0; --c-e3: #3a4fb0; --c-m1: #ff8f86; --c-m2: #d4615a; --c-m3: #9c4440;
   --c-gg: #ff8c26; --c-ggg: #b8691f; --c-aa: #c58be0; --c-ee: #9a62b3; --c-lnu: #6c4580;
-  --c-strong: #5cc48a; --c-zero: #5d5d66; --warn: #ff7b72; --tab-on: #2f4fd6; --tab-on-fg: #ffffff;
+  --c-strong: #5cc48a; --c-zero: #5d5d66; --tab-on: #2f4fd6; --tab-on-fg: #ffffff;
   --link: #8aa0ff; --code-bg: #161618; --bar-bg: rgba(27, 27, 31, 0.85);
   color-scheme: dark;
 }
@@ -109,6 +111,7 @@ select { font: inherit; font-size: 0.85rem; padding: 4px 8px; background: var(--
 .detail ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 3px; max-height: 520px; overflow-y: auto; }
 .detail li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
 .detail li .w { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.detail li .mp { grid-column: 2 / 4; margin-top: -2px; font-family: var(--font-mono); font-size: 0.78em; color: var(--muted); }
 .detail .sum { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--rule); color: var(--muted); }
 .hint { color: var(--muted); font-size: 0.85rem; margin: 0; }
 
@@ -127,7 +130,6 @@ text.mass { font-family: var(--font-mono); font-size: 9.5px; fill: var(--muted);
 .tr text, .ex text { font-family: var(--font-mono); font-size: 10px; paint-order: stroke; stroke: var(--panel); stroke-width: 3.5px; stroke-linejoin: round; }
 .tr.zero path { stroke-dasharray: 3 3; }
 .dim { opacity: 0.1; }
-.warnmark { fill: var(--warn) !important; font-weight: 600; }
 
 .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 22px; }
 .cols > section { min-width: 0; }
@@ -145,7 +147,6 @@ th.num { text-align: right; }
 td .sw { margin-right: 8px; vertical-align: middle; }
 td.ch { color: var(--muted); font-size: 0.78rem; white-space: normal; min-width: 200px; }
 .prov { color: var(--muted); font-size: 0.8rem; }
-.warn { color: var(--warn); }
 a { color: var(--link); text-decoration: none; font-weight: 500; }
 a:hover { text-decoration: underline; text-underline-offset: 2px; }
 
@@ -218,14 +219,14 @@ footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--ru
     <div class="figure"><svg id="diagram" viewBox="0 0 1240 840" role="img" aria-label="Level diagram with computed transition widths"></svg></div>
     <aside class="detail" id="detail" aria-live="polite"></aside>
   </div>
-  <p class="hint">Hover or tap a level to isolate its transitions and list all of them on the right; tap empty space to reset. Each level shows at most four exits (decays leaving the diagram); the panel and the table list all. † marks a width computed in the S+P basis, without D-wave mixing.</p>
+  <p class="hint">Hover or tap a level to isolate its transitions and list all of them on the right; tap empty space to reset. Each level shows at most four exits (decays leaving the diagram); the panel lists all. Widths below 1 keV are hidden by default; choose "show all" to draw every computed transition. † marks a gluonic width computed in the S+P basis, without D-wave mixing.</p>
 
   <div class="cols">
     <section class="note">
       <h2>Operators and conventions</h2>
       <ul>
         <li><strong>Strong:</strong> elementary emission of π, K, η, η′ (<span class="mono">PseudoscalarEmission</span>). Couplings from the strong-decay tutorial: h/g from the paper's S₀/A fit, g fixed by Γ(ρ → ππ) = 149.1 MeV (<span class="mono" id="couplings"></span>). Charge channels are summed; for two pseudoscalar daughters one rearrangement is kept, with the lighter of π &lt; K &lt; η &lt; η′ as the emitted meson; identical daughters get ½. Decays needing pair creation (³P₀), such as ψ(3770) → DD̄ or ρ → K K̄* with an s s̄ pair, are not in the operator.</li>
-        <li><strong>Radiative</strong> (<span class="mono">PhotonEmission</span>): E1 (S ↔ P), M1 (S ↔ S, direct and hindered), M2 (³P₂ → ¹S₀). Computed for each charge state; switch with the "Charge state" control.</li>
+        <li><strong>Radiative</strong> (<span class="mono">MultipolePhotonEmission</span>): every pair of levels, from the quark convection and spin currents, exact in the photon momentum and resolved into all multipoles (E1, M1, E2, M2, E3, M3, …). D waves and mixed states are included. Electric multipoles come from the charge density (Siegert's theorem); there is no fitted <i>m</i>/<i>E</i> factor. An arrow takes the color of its dominant multipole; the panel and the table list the normalized amplitudes a<sub>k</sub> (lowest multipole positive, the convention of the CLEO and BESIII χ<sub>cJ</sub> analyses). Computed for each charge state; switch with the "Charge state" control. J = 0 → 0 is not listed.</li>
         <li><strong>Gluonic</strong> (<span class="mono">GluonicAnnihilation</span>, α<sub>s</sub>(M)): only for c c̄ and b b̄; for light quarks the perturbative rate has no meaning.</li>
         <li><strong>γγ and e⁺e⁻</strong> for neutral hidden-flavor states; <strong>ℓν</strong> for the charged ground-state pseudoscalars with PDG CKM elements.</li>
       </ul>
@@ -233,9 +234,10 @@ footer { color: var(--muted); font-size: 0.82rem; border-top: 1px solid var(--ru
     <section class="note">
       <h2>Read before quoting</h2>
       <ul>
-        <li>Computed with GIModel.jl v0.4.2 at commit <a href="https://github.com/mmikhasenko/GIModel.jl/commit/cc7bf22efc7611bb1fddb9fefa759184b1e67d0b"><code>cc7bf22</code></a>, which carries the corrected singlet E1 factor (¹P₁ → ¹S₀ takes 1/3, as ³P<sub>J</sub> → ³S₁).</li>
+        <li>Computed with GIModel.jl v0.5.0 (unreleased) at commit <a href="https://github.com/mmikhasenko/GIModel.jl/commit/fda4ab96c2af82fc5d321ae8ee729abdc8244daa"><code>fda4ab9</code></a>. Radiative widths do not follow the 1985 prescription: the paper smears E1 with a fitted (<i>m</i>/<i>E</i>)<sup>1/2</sup> and keeps only the leading multipole. Spectra and the other operators are those of the paper.</li>
         <li>Quarkonium-to-quarkonium hadronic transitions (ψ(2S) → J/ψ η, J/ψ ππ) vanish in the emission operator: a c quark cannot emit an η made of light quarks. They need the QCD multipole expansion, which is not implemented.</li>
-        <li>Zero widths: ³P₁ → ¹S₀ (spin-flip E1) and ³P₂ → ¹S₀ (M2) vanish for equal quark masses, C-forbidden. Shown dashed with the "zero-width" chip.</li>
+        <li>Zero widths: photon transitions between states of equal C, such as ³P₁ → ¹S₀ in charmonium, vanish exactly for equal quark masses. Shown dashed with the "zero-width" chip. In open flavor the same transitions are allowed and small.</li>
+        <li>Radiative widths against Godfrey's later GI-model papers, which use the same wavefunctions and nonrelativistic formulas without a fitted factor: M1 agrees to about 1% (D*⁰ → D⁰γ 107 keV against 106, D*⁺ → D⁺γ 10.9 against 10.8, D<sub>s</sub>* → D<sub>s</sub>γ 1.04 against 1.03). E1 differs where the light quark radiates: the full current adds a spin-current E1 term of relative order E<sub>γ</sub>/m that those papers omit, which raises ³P₀ → ³S₁ and lowers ³P₂ → ³S₁ (D⁰: 696 and 291 keV against 288 and 592). Without a fitted factor, light-quark M1 widths lie well above data (ρ⁺ → π⁺γ 225 keV against 68).</li>
         <li>Kinematics use model masses throughout (the model pion is 149 MeV). Widths are not separately convergence-checked; the oscillator solver certifies energies only.</li>
         <li>Partial widths of a level do not add up to its total width: channels outside the operators above are missing.</li>
       </ul>
@@ -289,9 +291,10 @@ const svg = document.getElementById("diagram");
 
 const CLASSES = [
   { group: "Strong", key: "strong", label: "π, K, η emission", color: "--c-strong" },
-  { group: "Radiative", key: "E1", label: "E1", color: "--c-e1" },
-  { group: "Radiative", key: "M1", label: "M1", color: "--c-m1" },
-  { group: "Radiative", key: "M2", label: "M2", color: "--c-m2" },
+  // radiative: one chip per dominant multipole present in the data (E1, M1, E2, M2, ...)
+  ...[...new Set(DATA.sectors.flatMap(s => s.transitions.map(t => t.cls)).filter(c => /^[EM]\d+$/.test(c)))]
+    .sort((a, b) => a.slice(1) - b.slice(1) || a.localeCompare(b))
+    .map(c => ({ group: "Radiative (dominant multipole)", key: c, label: c, color: `--c-${c[0].toLowerCase()}${Math.min(+c.slice(1), 3)}` })),
   { group: "To gluons", key: "gg", label: "gg", color: "--c-gg" },
   { group: "To gluons", key: "ggg", label: "ggg", color: "--c-ggg" },
   { group: "To photons, leptons", key: "γγ", label: "γγ", color: "--c-aa" },
@@ -302,7 +305,7 @@ const CLASSES = [
 const CLS = Object.fromEntries(CLASSES.map(c => [c.key, c]));
 const visible = Object.fromEntries(CLASSES.map(c => [c.key, !c.off]));
 const sectors = Object.fromEntries(DATA.sectors.map(s => [s.id, s]));
-const state = { sector: DATA.sectors[0].id, real: null, min: 0, focus: null };
+const state = { sector: DATA.sectors[0].id, real: null, min: 1e-3, focus: null };
 try { const h = location.hash.slice(1); if (sectors[h]) state.sector = h; } catch (e) {}
 
 // ---------- helpers ----------
@@ -340,7 +343,10 @@ const exitLabel = t => {
   if (t.toSector) return `${lname(t.toSector, t.toKey)} γ`;
   return t.emitted;
 };
-const marks = t => (t.flag === "singlet-E1" ? " ⚠" : "") + (t.basis === "SP" ? " †" : "");
+const RANK = Object.fromEntries(CLASSES.map((c, i) => [c.key, i]));
+const fmtA = a => (a < 0 ? "−" : "") + (Math.abs(a) >= 0.001 ? Math.abs(a).toFixed(3) : fmt(Math.abs(a)));
+const multipoles = t => t.multipoles && t.multipoles.length ? t.multipoles.map(m => `${m.m} ${fmtA(m.a)}`).join(" · ") : "";
+const marks = t => (t.basis === "SP" ? " †" : "");
 
 // ---------- tabs ----------
 const tabs = document.getElementById("tabs");
@@ -376,7 +382,7 @@ realBox.innerHTML = `<span class="gtitle">Charge state</span><div class="seg" id
 controls.appendChild(realBox);
 const minBox = document.createElement("div"); minBox.className = "lgroup";
 minBox.innerHTML = `<label class="gtitle" for="minw">Hide widths below</label>
-  <select id="minw"><option value="0">show all</option><option value="1e-3">1 keV</option><option value="0.1">0.1 MeV</option><option value="1">1 MeV</option><option value="10">10 MeV</option></select>`;
+  <select id="minw"><option value="0">show all</option><option value="1e-6">1 eV</option><option value="1e-3" selected>1 keV</option><option value="0.1">0.1 MeV</option><option value="1">1 MeV</option><option value="10">10 MeV</option></select>`;
 controls.appendChild(minBox);
 document.getElementById("minw").addEventListener("change", e => { state.min = +e.target.value; render(); });
 
@@ -428,7 +434,7 @@ function render() {
   document.getElementById("gimodel-version").textContent = `v${DATA.meta.gimodel_version} (${DATA.meta.gimodel_commit})`;
   document.getElementById("couplings").textContent = `g = ${DATA.meta.g.toFixed(3)}, h = ${DATA.meta.h.toFixed(3)} GeV⁻¹`;
   document.getElementById("prov").textContent =
-    `Precomputed ${DATA.meta.generated.slice(0, 16).replace("T", " ")} with GIModel.jl ${DATA.meta.gimodel_version} (commit ${DATA.meta.gimodel_commit}). Levels: ${DATA.meta.levels}. ${DATA.meta.solver} Strong pass: waves sampled on a ${DATA.meta.strong_mesh_h} GeV⁻¹ mesh, components below ${DATA.meta.prune} dropped.`;
+    `Precomputed ${DATA.meta.generated.slice(0, 16).replace("T", " ")} with GIModel.jl ${DATA.meta.gimodel_version} (commit ${DATA.meta.gimodel_commit}). Levels: ${DATA.meta.levels}. ${DATA.meta.solver} Radiative pass: waves sampled on a ${DATA.meta.radiative_mesh_h} GeV⁻¹ mesh, components below ${DATA.meta.radiative_drop} dropped. Strong pass: the same mesh, components below ${DATA.meta.prune} dropped.`;
 }
 
 function drawDiagram(sec, shown, all) {
@@ -509,7 +515,6 @@ function drawDiagram(sec, shown, all) {
     const my = u*u*u*sy + 3*u*u*tt*c1y + 3*u*tt*tt*c2y + tt*tt*tt*dy;
     const txt = el("text", { x: mx + 4, y: my + 3, fill: color }, g);
     txt.textContent = (t.cls === "strong" ? t.emitted + " " : "") + fmt(t.width) + (t.basis === "SP" ? "†" : "");
-    if (t.flag === "singlet-E1") el("tspan", { class: "warnmark", dx: 2 }, txt).textContent = "⚠";
   });
 
   // exits: decays leaving the diagram, top four per level
@@ -581,7 +586,7 @@ function showDetail(sec, all, key) {
     const cls = clsOf(t);
     const what = dir === "out" ? (t.to ? `→ ${nameHTML(lname(sec.id, t.to))}${t.cls === "strong" ? " " + esc(t.emitted) : " γ"}` : `→ ${nameHTML(exitLabel(t))}`)
       : `← ${nameHTML(lname(sec.id, t.from))}`;
-    return `<li><span class="sw" style="background:var(${CLS[cls].color})"></span><span>${what} <span style="color:var(--muted)">${cls === "zero" ? t.cls : CLS[cls].label}</span>${marks(t)}</span><span class="w">${fmt(t.width)}</span></li>`;
+    return `<li><span class="sw" style="background:var(${CLS[cls].color})"></span><span>${what} <span style="color:var(--muted)">${cls === "zero" ? t.cls : CLS[cls].label}</span>${marks(t)}</span><span class="w">${fmt(t.width)}</span>${t.multipoles && t.multipoles.length > 1 ? `<span class="mp">${multipoles(t)}</span>` : ""}</li>`;
   };
   const sum = out.reduce((s, t) => s + t.width, 0);
   box.innerHTML = `<h3>${nameHTML(l.name)}</h3>
@@ -592,19 +597,18 @@ function showDetail(sec, all, key) {
 }
 
 function drawTable(sec, shown) {
-  const rank = { strong: 0, E1: 1, M1: 2, M2: 3, zero: 4, gg: 5, ggg: 6, "γγ": 7, ee: 8, lnu: 9 };
-  const rows = [...shown].sort((a, b) => rank[clsOf(a)] - rank[clsOf(b)] || b.width - a.width);
+  const rows = [...shown].sort((a, b) => RANK[clsOf(a)] - RANK[clsOf(b)] || b.width - a.width);
   document.getElementById("tblhead").textContent = `All computed widths, ${sec.title.toLowerCase()} (${rows.length})`;
   document.getElementById("tbl").innerHTML =
-    `<thead><tr><th>Class</th><th>Decay</th><th>Levels</th><th class="num">Γ (MeV)</th><th>Charge channels</th></tr></thead><tbody>` +
+    `<thead><tr><th>Class</th><th>Decay</th><th>Levels</th><th class="num">Γ (MeV)</th><th>Charge channels / multipole amplitudes a<sub>k</sub></th></tr></thead><tbody>` +
     rows.map(t => {
       const cls = clsOf(t);
       const fin = t.to ? nameHTML(lname(sec.id, t.to)) + (t.cls === "strong" ? " " + esc(t.emitted) : " γ") : nameHTML(exitLabel(t));
       const lv = pretty(t.from) + (t.to ? " → " + pretty(t.to) : t.toKey ? " → " + pretty(t.toKey) + " (" + t.toSector + ")" : "");
       return `<tr><td><span class="sw" style="background:var(${CLS[cls].color})"></span>${cls === "zero" ? t.cls + " (zero)" : CLS[cls].label}</td>
-        <td>${nameHTML(lname(sec.id, t.from))} → ${fin}${t.flag === "singlet-E1" ? ' <span class="warn">⚠</span>' : ""}${t.basis === "SP" ? " †" : ""}</td>
+        <td>${nameHTML(lname(sec.id, t.from))} → ${fin}${t.basis === "SP" ? " †" : ""}</td>
         <td class="mono">${lv}</td><td class="num">${t.width === 0 ? "0" : t.width.toPrecision(3)}</td>
-        <td class="ch">${t.channels ? esc(t.channels.join("; ")) : t.ckm ? "|V| = " + t.ckm : ""}</td></tr>`;
+        <td class="ch">${t.channels ? esc(t.channels.join("; ")) : t.ckm ? "|V| = " + t.ckm : multipoles(t)}</td></tr>`;
     }).join("") + "</tbody>";
 }
 
@@ -614,7 +618,10 @@ function drawGaps(sec) {
   const zeros = (z.parity || z.symmetry)
     ? `<li><span class="c">${z.parity + z.symmetry}×</span> strong channels that vanish exactly and are not drawn: ${z.parity} forbidden by J and parity (the package throws "reducing over an empty collection", GIModel.jl#23), ${z.symmetry} forbidden by G parity or isospin (rounding noise below 10⁻²⁰ MeV).</li>`
     : "";
-  ul.innerHTML = zeros + (sec.gaps.length
+  const rz = sec.radiative_zeros
+    ? `<li><span class="c">${sec.radiative_zeros}×</span> photon transitions with every multipole exactly zero (C parity for equal quark masses). Listed under the "zero-width" chip.</li>`
+    : "";
+  ul.innerHTML = zeros + rz + (sec.gaps.length
     ? sec.gaps.map(g => `<li><span class="c">${g.count}×</span> ${esc(g.message)}</li>`).join("")
     : "<li>None.</li>");
 }

@@ -10,8 +10,8 @@ by its partial width in MeV.
 - **Model:** S. Godfrey and N. Isgur, *Mesons in a relativized quark model with
   chromodynamics*, [Phys. Rev. D 32, 189 (1985)](https://doi.org/10.1103/PhysRevD.32.189).
 - **Computation:** [GIModel.jl](https://github.com/mmikhasenko/GIModel.jl)
-  v0.4.2 at commit
-  [`cc7bf22`](https://github.com/mmikhasenko/GIModel.jl/commit/cc7bf22efc7611bb1fddb9fefa759184b1e67d0b),
+  v0.5.0 (unreleased) at commit
+  [`fda4ab9`](https://github.com/mmikhasenko/GIModel.jl/commit/fda4ab96c2af82fc5d321ae8ee729abdc8244daa),
   pinned in [`Project.toml`](Project.toml) and [`Manifest.toml`](Manifest.toml);
   a reproduction of the model ([arXiv:2609.37716](https://inspirehep.net/literature/3209266)).
   [Documentation](https://mmikhasenko.github.io/GIModel.jl/dev/).
@@ -36,7 +36,7 @@ tensors).
 | class | operator | where |
 |---|---|---|
 | strong: π, K, η, η′ emission | `PseudoscalarEmission` | all sectors with a light quark |
-| radiative E1, M1, M2 | `PhotonEmission` | every sector, per charge state |
+| radiative, every multipole (E1, M1, E2, M2, E3, M3, …) | `MultipolePhotonEmission` | every pair of levels in every sector, per charge state |
 | gg, ggg | `GluonicAnnihilation` | c c̄, b b̄ |
 | γγ, e⁺e⁻ | `TwoPhotonAnnihilation`, `LeptonicCurrent` | neutral hidden flavor |
 | ℓν | `LeptonicCurrent` | charged ground-state pseudoscalars |
@@ -44,7 +44,8 @@ tensors).
 Every pair of states is tried with every operator. A refused call is kept,
 grouped by message, and listed on the site under "Not computed in this sector".
 The site explains the conventions: strong couplings, charge-channel sums, the
-S+P fallback for D-wave admixtures, and exact zeros.
+multipole amplitudes, the S+P fallback for gluonic widths of D-wave
+admixtures, and exact zeros.
 
 ## Repository layout
 
@@ -80,7 +81,7 @@ Intermediate results are cached in `cache/` (not tracked):
 | `cache/strong/` | one file per decaying parent | a change to strong decays |
 
 With both caches present, `julia --project=. compute.jl` redoes only the
-radiative and annihilation widths and the assembly, in about 4 minutes. The
+radiative and annihilation widths and the assembly, in about 3 minutes. The
 caches do not record the package version, so delete them yourself after
 updating GIModel.jl.
 
@@ -94,8 +95,15 @@ To view the result, open `site/index.html` in a browser. No server is needed.
   this, the strong pass takes hours
   ([GIModel.jl#21](https://github.com/mmikhasenko/GIModel.jl/issues/21),
   [#20](https://github.com/mmikhasenko/GIModel.jl/issues/20)).
-- Radiative and gluonic widths of states with a D-wave admixture are computed
-  on the S+P states and marked †
+- Radiative widths are exact in the photon momentum and include D waves and
+  mixed states. Their radial integrals use waves sampled onto the same mesh,
+  with components below 10⁻⁸ dropped. Over all c c̄ and u s̄ pairs they agree
+  with the oscillator overlaps to 10⁻¹⁰ relative. Each transition is
+  classed by its dominant multipole; `multipoles` lists every nonzero one.
+  Electric multipoles use Siegert's theorem; there is no fitted m/E factor,
+  so the radiative widths depart from the GI 1985 prescription.
+- Gluonic widths of states with a D-wave admixture are computed on the S+P
+  states and marked †
   ([#22](https://github.com/mmikhasenko/GIModel.jl/issues/22)).
 - Channels forbidden by parity, G parity or isospin are counted, not drawn
   ([#23](https://github.com/mmikhasenko/GIModel.jl/issues/23)).
@@ -108,7 +116,8 @@ To view the result, open `site/index.html` in a browser. No server is needed.
 `sectors`. Each sector has `levels` (key such as `"1^3P_2"`, name, mass in
 GeV, composition), `transitions` (class, `from`, `to` or `toSector`/`toKey`,
 emitted particle, `width` in MeV, charge realization, basis `full` or `SP`,
-charge channels), `gaps` (refused calls by message) and `strong_zeros`.
+charge channels; for photons the momentum `q` in GeV and `multipoles`, the
+normalized amplitudes a_k with the lowest multipole positive), `gaps` (refused calls by message) and `strong_zeros`.
 
 ## Citing
 

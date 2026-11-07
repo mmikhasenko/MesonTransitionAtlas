@@ -13,8 +13,8 @@ params, mq = load_parameters_and_quark_masses(default_parameters_path())
 const SOLVER = OscillatorSolver()
 
 # All levels with n ≤ 3 in S, n ≤ 2 in P and D. The S+P subset is solved
-# separately: in it nothing mixes with a D wave, which PhotonEmission and the
-# gluonic kernel require. A process is tried on the full states first and on
+# separately: in it nothing mixes with a D wave, which the gluonic kernel
+# requires. A process is tried on the full states first and on
 # the S+P states only when the full ones are rejected.
 const LEVELS_FULL = vcat(spectrum_levels(3; L_labels = ("S",)), spectrum_levels(2; L_labels = ("P", "D")))
 const LEVELS_SP = filter(b -> b.L_label != "D", LEVELS_FULL)
@@ -240,22 +240,58 @@ emit!(secid; kw...) = push!(records[secid], (; kw...))
 active(sec) = ONLY === nothing || sec.id in ONLY
 const WORKER = haskey(ENV, "STRONG_WORKER")   # strong-pass worker: skip everything else
 
-# --- radiative, within each realization -------------------------------------
-pe = PhotonEmission(mq)
+# --- radiative: every multipole, exact in the photon momentum ----------------
+# MultipolePhotonEmission takes any pair of states, including D waves and mixed
+# states, so the radiative pass needs no S+P fallback. Its radial integrals run
+# on waves sampled onto a shared mesh: against the oscillator overlaps the
+# widths agree to 1e-10 relative for all c c̄ and u s̄ pairs, 40-50 times faster.
+# Components with |c| < RAD_DROP (numerically absent levels) are dropped.
+const RAD_MESH = collect(0.005:0.005:40.0)   # GeV⁻¹
+const RAD_DROP = 1e-8
+mesh_state(::Nothing) = nothing
+mesh_state(ps::PhysicalState) = PhysicalState(ps.label, ps.mass_GeV,
+    [(basis = c.basis, coefficient = c.coefficient, wave = sample_wave(c.wave, RAD_MESH))
+     for c in ps.components if abs(c.coefficient) >= RAD_DROP];
+    provenance = ps.provenance)
+const MESHED = IdDict{PhysicalState,PhysicalState}()   # sample each state once
+meshed(ps::PhysicalState) = get!(() -> mesh_state(ps), MESHED, ps)
+const PHOTON = MultipolePhotonEmission(mq)
+radiative_zeros = Dict{String,Int}()
+
+"""Photon record fields for i → f γ, or nothing for 0 → 0 or a refused call.
+The class is the dominant multipole; `multipoles` keeps every nonzero one as a
+normalized amplitude a_k (lowest multipole positive, the KMR/CLEO convention)."""
+function photon(secid, what, ri, rf)
+    i, f = meshed(anystate(ri)), meshed(anystate(rf))
+    (i.J == 0 && f.J == 0) && return nothing          # forbidden for a real photon
+    me = try
+        matrix_element(f, PHOTON, i)
+    catch e
+        gap!(secid, what, e)
+        return nothing
+    end
+    w = decay_width(me)
+    nonzero = [m for m in me.multipoles if !iszero(m.amplitude)]
+    if isempty(nonzero)
+        radiative_zeros[secid] = get(radiative_zeros, secid, 0) + 1
+        return (cls = String(first(me.multipoles).multipole), width = 0.0, q = me.momentum_GeV, multipoles = [])
+    end
+    a = multipole_fractions(me)
+    dom = argmax(m -> abs(m.amplitude), nonzero)
+    return (cls = String(dom.multipole), width = w, q = me.momentum_GeV,
+        multipoles = [(m = String(m.multipole), a = a[m.multipole]) for m in nonzero])
+end
+
 for sec in SECTORS
     (active(sec) && !WORKER) || continue
     for (rid, _, _) in sec.reals
         R = reps[(sec.id, rid)]
         for (ki, ri) in R, (kf, rf) in R
             anystate(ri).mass_GeV > anystate(rf).mass_GeV || continue
-            res = attempt(sec.id, "photon", ri, rf) do i, f
-                me = matrix_element(f, pe, i)
-                (String(me.multipole), decay_width(me))
-            end
-            res === nothing && continue
-            (mult, w), basis = res
-            st = anystate(ri)
-            emit!(sec.id; cls = mult, from = ki, to = kf, width = w, real = length(sec.reals) > 1 ? rid : nothing, basis)
+            p = photon(sec.id, "photon", ri, rf)
+            p === nothing && continue
+            emit!(sec.id; cls = p.cls, from = ki, to = kf, width = p.width, real = length(sec.reals) > 1 ? rid : nothing,
+                basis = "full", q = p.q, multipoles = p.multipoles)
         end
     end
     @printf("radiative %-4s %5d records (%.0f s)\n", sec.id, length(records[sec.id]), time() - t0); flush(stdout)
@@ -266,16 +302,14 @@ for (a, b) in ((("iso", "0"), ("ud", "0")), (("ud", "0"), ("iso", "0")))
     (ONLY === nothing || a[1] in ONLY) && !WORKER || continue
     for (ki, ri) in reps[a], (kf, rf) in reps[b]
         anystate(ri).mass_GeV > anystate(rf).mass_GeV || continue
-        res = attempt(a[1], "photon (cross)", ri, rf) do i, f
-            me = matrix_element(f, pe, i)
-            (String(me.multipole), decay_width(me))
-        end
-        res === nothing && continue
-        (mult, w), basis = res
-        emit!(a[1]; cls = mult, from = ki, to = nothing, toSector = b[1], toKey = kf, emitted = "γ", width = w,
-            real = a[1] == "ud" ? "0" : nothing, basis, flag = nothing)
+        p = photon(a[1], "photon (cross)", ri, rf)
+        p === nothing && continue
+        emit!(a[1]; cls = p.cls, from = ki, to = nothing, toSector = b[1], toKey = kf, emitted = "γ", width = p.width,
+            real = a[1] == "ud" ? "0" : nothing, basis = "full", q = p.q, multipoles = p.multipoles)
     end
 end
+empty!(MESHED)
+println("radiative done ($(round(Int, time() - t0)) s)"); flush(stdout)
 
 # --- annihilation ------------------------------------------------------------
 ee = LeptonicCurrent(:electromagnetic, mq)
@@ -505,12 +539,13 @@ for sec in SECTORS
     push!(sector_json, js((id = sec.id, title = sec.title, quarks = sec.quarks, hidden = sec.hidden,
         realizations = [(id = r[1], label = r[2]) for r in sec.reals],
         levels, transitions = records[sec.id], gaps = gl,
-        strong_zeros = get(zeros_count, sec.id, Dict("parity" => 0, "symmetry" => 0)))))
+        strong_zeros = get(zeros_count, sec.id, Dict("parity" => 0, "symmetry" => 0)),
+        radiative_zeros = get(radiative_zeros, sec.id, 0))))
 end
 
 meta = (generated = string(now()), gimodel_version = GIMODEL["version"], gimodel_commit = GIMODEL["repo-rev"][1:7], gimodel_url = GIMODEL["repo-url"],
     solver = string(numerics_provenance(SOLVER)), g = g, h = H_OVER_G * g,
-    levels = "S: n ≤ 3; P, D: n ≤ 2", prune = PRUNE, strong_mesh_h = MESH[2] - MESH[1], threads = Threads.nthreads(), seconds = round(Int, time() - t0))
+    levels = "S: n ≤ 3; P, D: n ≤ 2", prune = PRUNE, radiative_mesh_h = RAD_MESH[2] - RAD_MESH[1], radiative_drop = RAD_DROP, strong_mesh_h = MESH[2] - MESH[1], threads = Threads.nthreads(), seconds = round(Int, time() - t0))
 open(OUT, "w") do io
     print(io, "{\"meta\":", js(meta), ",\"sectors\":[", join(sector_json, ","), "]}")
 end
